@@ -61,22 +61,19 @@ function bookAppointment() {
   // Відправка даних на сервер (Google Apps Script endpoint)
   fetch('https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
     body: JSON.stringify(data)
+})
+  .then(response => response.text())
+  .then(result => {
+    document.getElementById('confirmation').textContent =
+      `Ви записані на ${data.service} до Оксани Черній на ${date} о ${time}. Дякуємо, ${name}!`;
+    document.getElementById('confirmation').style.display = 'block';
+    updateTimeSlots(); // Оновлюємо слоти після запису
   })
-    .then(response => response.text())
-    .then(result => {
-      document.getElementById('confirmation').textContent = 
-        `Ви записані на ${data.service} до Оксани Черній на ${date} о ${time}. Дякуємо, ${name}!`;
-      document.getElementById('confirmation').style.display = 'block';
-      updateTimeSlots(); // Оновлюємо доступні слоти після запису
-    })
-    .catch(error => {
-      alert('Помилка запису: ' + error);
-      console.error('Помилка запису:', error);
-    });
+  .catch(error => {
+    alert('Помилка запису: ' + error);
+    console.error('Помилка запису:', error);
+  });
 
   // Очищення полів для імені та телефону після запису
   document.getElementById('name').value = '';
