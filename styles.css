@@ -1,0 +1,101 @@
+﻿body {
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(135deg, #ffe6f0, #fff0f5);
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.profile-pic {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    border: 3px solid #ff99cc;
+    object-fit: cover;
+}
+
+h1 {
+    font-family: 'Playfair Display', serif;
+    color: #ff6699;
+    font-size: 32px;
+    margin: 10px 0;
+}
+
+.slogan {
+    color: #666;
+    font-style: italic;
+    font-size: 16px;
+}
+
+.form-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+label {
+    font-weight: bold;
+    color: #ff6699;
+}
+
+select, input, button {
+    padding: 12px;
+    font-size: 16px;
+    border: 2px solid #ffccdd;
+    border-radius: 8px;
+    background: #fff;
+}
+
+select option:disabled {
+    color: #ccc;
+}
+
+button {
+    background: #ff6699;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+button:hover {
+    background: #ff3366;
+}
+
+#confirmation {
+    margin-top: 20px;
+    color: #28a745;
+    font-weight: bold;
+}
+
+.admin-login, .admin-panel {
+    max-width: 400px;
+    margin: 20px auto;
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.admin-panel ul {
+    list-style: none;
+    padding: 0;
+}
+
+.admin-panel li {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+}
