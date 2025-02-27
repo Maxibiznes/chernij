@@ -5,7 +5,7 @@
 
   if (dateInput) {
     // Замініть URL на свій власний endpoint Google Apps Script, якщо потрібно
-    fetch('https://script.google.com/macros/s/AKfycbzauSdQbSw43IoXCJw8lug3iftcvbDwRpDV_NS1GYk0HzkoSUSCBol4QBir9sVhExzj/exec')
+    fetch('https://script.google.com/macros/s/AKfycbzx2tWVHy2B4uo_0p8teR_Z1mD-qVHFmzPE6if515Y95PROxbBwLdBo7YzgTQ2-_gpq/exec')
       .then(response => response.json())
       .then(data => {
         // Фільтрація записів за вибраною датою
@@ -59,7 +59,7 @@ function bookAppointment() {
   };
 
   // Відправка даних на сервер (Google Apps Script endpoint)
-  fetch('https://script.google.com/macros/s/AKfycbzauSdQbSw43IoXCJw8lug3iftcvbDwRpDV_NS1GYk0HzkoSUSCBol4QBir9sVhExzj/exec', {
+  fetch('https://script.google.com/macros/s/AKfycbzx2tWVHy2B4uo_0p8teR_Z1mD-qVHFmzPE6if515Y95PROxbBwLdBo7YzgTQ2-_gpq/exec', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
@@ -108,7 +108,7 @@ function logoutAdmin() {
 
 function showAppointments() {
   // Отримання записів із Google Sheets через Google Apps Script endpoint
-  fetch('https://script.google.com/macros/s/AKfycbzauSdQbSw43IoXCJw8lug3iftcvbDwRpDV_NS1GYk0HzkoSUSCBol4QBir9sVhExzj/exec')
+  fetch('https://script.google.com/macros/s/AKfycbzx2tWVHy2B4uo_0p8teR_Z1mD-qVHFmzPE6if515Y95PROxbBwLdBo7YzgTQ2-_gpq/exec')
     .then(response => response.json())
     .then(data => {
       const list = document.getElementById('appointments-list');
