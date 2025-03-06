@@ -1,3 +1,13 @@
+window.onload = function() {  
+  let dateInput = document.getElementById("date");  
+  let today = new Date();  
+  let dd = String(today.getDate()).padStart(2, '0');  
+  let mm = String(today.getMonth() + 1).padStart(2, '0'); // Січень - 0!  
+  let yyyy = today.getFullYear();  
+
+  today = yyyy + '-' + mm + '-' + dd;  
+  dateInput.setAttribute("min", today);  
+};  
 ﻿function updateTimeSlots() {
   const dateInput = document.getElementById('date').value;
   const timeSelect = document.getElementById('time');
