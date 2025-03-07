@@ -135,4 +135,3 @@ function showAppointments() {
 document.querySelector('h1').addEventListener('click', () => {
   document.querySelector('.admin-login').style.display = 'block';
 });
-

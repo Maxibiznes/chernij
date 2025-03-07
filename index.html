@@ -1,283 +1,62 @@
-<!DOCTYPE html>  
-<html>  
-<head>  
-  <title>Запис до Оксани Черній</title>  
-  <style>  
-    body {  
-      font-family: Arial, sans-serif;  
-      margin: 20px;  
-    }  
-    h1 {  
-      cursor: pointer;  
-    }  
-    form {  
-      margin-bottom: 20px;  
-    }  
-    label {  
-      display: block;  
-      margin-bottom: 5px;  
-    }  
-    input[type="text"],  
-    input[type="tel"],  
-    input[type="date"],  
-    select {  
-      width: 200px;  
-      padding: 5px;  
-      margin-bottom: 10px;  
-    }  
-    button {  
-      padding: 8px 15px;  
-      background-color: #4CAF50;  
-      color: white;  
-      border: none;  
-      cursor: pointer;  
-    }  
-    button:hover {  
-      background-color: #3e8e41;  
-    }  
-    .admin-login, .admin-panel {  
-      border: 1px solid #ccc;  
-      padding: 10px;  
-      margin-bottom: 10px;  
-    }  
-    .admin-panel {  
-      display: none;  
-    }  
-    #admin-error, #booking-error, #appointments-error, #time-slots-error {  
-      color: red;  
-      margin-top: 5px;  
-    }  
-    #confirmation {  
-      display: none;  
-      margin-top: 10px;  
-      padding: 10px;  
-      border: 1px solid #ccc;  
-    }  
-    ul {  
-      list-style-type: none;  
-      padding: 0;  
-    }  
-    li {  
-      margin-bottom: 5px;  
-    }  
-  </style>  
-</head>  
-<body>  
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Запис до Оксани Черній</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display&family=Roboto:wght@300&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="https://via.placeholder.com/150" alt="Оксана Черній" class="profile-pic">
+            <h1>Оксана Черній</h1>
+            <p class="slogan">Ваші нігті — моя турбота! Досконалий манікюр із любов’ю та стилем.</p>
+        </div>
+        
+        <div class="form-section">
+            <label for="service">Оберіть послугу:</label>
+            <select id="service">
+                <option value="classic">Класичний манікюр - 200 грн</option>
+                <option value="gel">Гель-лак - 350 грн</option>
+                <option value="design">Манікюр із дизайном - 400 грн</option>
+            </select>
 
-  <h1>Запис до Оксани Черній (Клікніть тут для входу в адмін-панель)</h1>  
+            <label for="date">Оберіть дату:</label>
+            <input type="date" id="date" min="2025-02-25" onchange="updateTimeSlots()">
 
-  <form>  
-    <label for="service">Послуга:</label>  
-    <select id="service">  
-      <option value="classic">Класичний манікюр</option>  
-      <option value="gel">Гель-лак</option>  
-      <option value="design">Манікюр із дизайном</option>  
-    </select><br><br>  
+            <label for="time">Оберіть час:</label>
+            <select id="time">
+                <option value="">Спочатку оберіть дату</option>
+            </select>
 
-    <label for="date">Дата:</label>  
-    <input type="date" id="date" onchange="updateTimeSlots()"><br><br>  
+            <label for="name">Ваше ім’я:</label>
+            <input type="text" id="name" placeholder="Введіть ім’я">
 
-    <label for="time">Час:</label>  
-    <select id="time"></select>  
-    <div id="time-slots-error"></div>  
-    <br><br>  
+            <label for="phone">Ваш телефон:</label>
+            <input type="tel" id="phone" placeholder="Введіть номер телефону">
 
-    <label for="name">Ім'я:</label>  
-    <input type="text" id="name"><br><br>  
+            <button onclick="bookAppointment()">Записатися</button>
+        </div>
 
-    <label for="phone">Телефон:</label>  
-    <input type="tel" id="phone"><br><br>  
+        <p id="confirmation" style="display: none;"></p>
+    </div>
 
-    <button onclick="bookAppointment()">Забронювати</button>  
-    <div id="booking-error"></div>  
-  </form>  
+    <div class="admin-login" style="display: none;">
+        <h2>Вхід для адміна</h2>
+        <input type="password" id="admin-password" placeholder="Введіть пароль">
+        <button onclick="loginAdmin()">Увійти</button>
+        <p id="admin-error" style="color: red; display: none;">Невірний пароль!</p>
+    </div>
 
-  <div id="confirmation"></div>  
+    <div class="admin-panel" style="display: none;">
+        <h2>Панель адміністратора</h2>
+        <button onclick="logoutAdmin()">Вийти</button>
+        <h3>Записи</h3>
+        <ul id="appointments-list"></ul>
+    </div>
 
-  <div class="admin-login">  
-    <h2>Вхід в адмін-панель</h2>  
-    <label for="admin-password">Пароль:</label>  
-    <input type="password" id="admin-password">  
-    <button onclick="loginAdmin()">Увійти</button>  
-    <div id="admin-error">Невірний пароль</div>  
-  </div>  
-
-  <div class="admin-panel">  
-    <h2>Адмін-панель</h2>  
-    <button onclick="logoutAdmin()">Вийти</button>  
-    <h3>Записи:</h3>  
-    <div id="appointments-error"></div>  
-    <ul id="appointments-list"></ul>  
-  </div>  
-
-  <script>  
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec';  
-
-    window.onload = function() {  
-      let dateInput = document.getElementById("date");  
-      let today = new Date();  
-      let dd = String(today.getDate()).padStart(2, '0');  
-      let mm = String(today.getMonth() + 1).padStart(2, '0');  
-      let yyyy = today.getFullYear();  
-
-      today = yyyy + '-' + mm + '-' + dd;  
-      dateInput.setAttribute("min", today);  
-    };  
-
-    function updateTimeSlots() {  
-      const dateInput = document.getElementById('date').value;  
-      const timeSelect = document.getElementById('time');  
-      const errorContainer = document.getElementById('time-slots-error');  
-      timeSelect.innerHTML = '';  
-      errorContainer.style.display = 'none';  
-
-      if (dateInput) {  
-        fetch(SCRIPT_URL)  
-          .then(response => response.json())  
-          .then(data => {  
-            const bookedTimes = data.filter(row => row && row[0] === dateInput).map(row => row[1]);  
-            const times = ['10:00', '12:00', '14:00', '16:00', '18:00'];  
-            times.forEach(time => {  
-              const option = document.createElement('option');  
-              option.value = time;  
-              option.textContent = time;  
-              option.disabled = bookedTimes.includes(time);  
-              timeSelect.appendChild(option);  
-            });  
-          })  
-          .catch(error => {  
-            console.error('Помилка завантаження слотів:', error);  
-            errorContainer.textContent = 'Не вдалося завантажити слоти. Спробуйте пізніше.';  
-            errorContainer.style.display = 'block';  
-          });  
-      } else {  
-        const option = document.createElement('option');  
-        option.textContent = 'Спочатку оберіть дату';  
-        timeSelect.appendChild(option);  
-      }  
-    }  
-
-    function bookAppointment() {  
-      const service = document.getElementById('service').value;  
-      const date = document.getElementById('date').value;  
-      const time = document.getElementById('time').value;  
-      const name = document.getElementById('name').value.trim();  
-      const phone = document.getElementById('phone').value.trim();  
-      const confirmation = document.getElementById('confirmation');  
-      const errorContainer = document.getElementById('booking-error');  
-      errorContainer.style.display = 'none';  
-
-      if (!name || !phone || !date || !time) {  
-        alert('Будь ласка, заповніть усі поля!');  
-        return;  
-      }  
-
-      // Додано валідацію формату телефону (приклад)  
-      const phoneRegex = /^\+?380\d{9}$/; // Приклад для українських номерів  
-      if (!phoneRegex.test(phone)) {  
-        alert('Будь ласка, введіть коректний номер телефону у форматі +380XXXXXXXXX');  
-        return;  
-      }  
-
-      const serviceNames = {  
-        classic: 'Класичний манікюр',  
-        gel: 'Гель-лак',  
-        design: 'Манікюр із дизайном'  
-      };  
-
-      const data = {  
-        service: serviceNames[service] || service,  
-        date,  
-        time,  
-        name,  
-        phone  
-      };  
-
-      fetch(SCRIPT_URL, {  
-        method: 'POST',  
-        body: JSON.stringify(data)  
-      })  
-      .then(response => response.text())  
-      .then(result => {  
-        confirmation.textContent = `Ви записані на ${data.service} до Оксани Черній на ${date} о ${time}. Дякуємо, ${name}!`;  
-        confirmation.style.display = 'block';  
-        updateTimeSlots();  
-        // Очищення полів для імені та телефону після запису  
-        document.getElementById('name').value = '';  
-        document.getElementById('phone').value = '';  
-      })  
-      .catch(error => {  
-        console.error('Помилка запису:', error);  
-        errorContainer.textContent = 'Помилка запису: ' + error;  
-        errorContainer.style.display = 'block';  
-      });  
-    }  
-
-    function loginAdmin() {  
-      const passwordInput = document.getElementById('admin-password');  
-      const password = passwordInput.value;  
-      if (password === 'admin123') {  
-        document.querySelector('.admin-login').style.display = 'none';  
-        document.querySelector('.admin-panel').style.display = 'block';  
-        document.getElementById('admin-error').style.display = 'none';  
-        passwordInput.value = '';  
-        showAppointments();  
-      } else {  
-        document.getElementById('admin-error').style.display = 'block';  
-      }  
-    }  
-
-    function logoutAdmin() {  
-      document.querySelector('.admin-panel').style.display = 'none';  
-      document.querySelector('.admin-login').style.display = 'block';  
-      document.getElementById('admin-password').value = '';  
-      document.getElementById('admin-error').style.display = 'none';  
-    }  
-
-    function showAppointments() {  
-      const list = document.getElementById('appointments-list');  
-      const errorContainer = document.getElementById('appointments-error');  
-      errorContainer.style.display = 'none';  
-      list.innerHTML = '';  
-
-      fetch(SCRIPT_URL)  
-        .then(response => response.json())  
-        .then(data => {  
-          if (!Array.isArray(data)) {  
-            throw new Error('Отримано невірний формат даних з сервера');  
-          }  
-          data.forEach(row => {  
-            if (row && row.length >= 5) {  
-              const li = document.createElement('li');  
-              const date = escapeHTML(row[0]);  
-              const time = escapeHTML(row[1]);  
-              const service = escapeHTML(row[2]);  
-              const name = escapeHTML(row[3]);  
-              const phone = escapeHTML(row[4]);  
-              li.textContent = `${date} о ${time} - ${service} для ${name} (${phone})`;  
-              list.appendChild(li);  
-            } else {  
-              console.warn('Невірний формат рядка даних:', row);  
-            }  
-          });  
-        })  
-        .catch(error => {  
-          console.error('Помилка завантаження записів:', error);  
-          errorContainer.textContent = 'Помилка завантаження записів: ' + error;  
-          errorContainer.style.display = 'block';  
-        });  
-    }  
-
-    function escapeHTML(str) {  
-      let p = document.createElement("p");  
-      p.appendChild(document.createTextNode(str));  
-      return p.innerHTML;  
-    }  
-
-    document.querySelector('h1').addEventListener('click', () => {  
-      document.querySelector('.admin-login').style.display = 'block';  
-    });  
-  </script>  
-
-</body>  
-</html>  
+    <script src="script.js"></script>
+</body>
+</html>
