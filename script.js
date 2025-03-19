@@ -21,14 +21,16 @@ function updateTimeSlots() {
         fetch(url)
             .then(response => response.json())
             .then(data => {
-                console.log("Дані, отримані від API:", data);
+                console.log("Дані, отримані від API:", data); // Лог для перевірки
 
-                const bookedSlots = data.map(row => {
-                    const date = row[0];
-                    const time = new Date(row[1]).toTimeString().slice(0, 5);
-                    return { date, time };
+                // Перетворення заброньованих часів у формат HH:mm
+                const bookedTimes = data.map(row => {
+                    const date = new Date(row[1]);
+                    const hours = date.getHours().toString().padStart(2, '0');
+                    const minutes = date.getMinutes().toString().padStart(2, '0');
+                    return `${hours}:${minutes}`;
                 });
-                console.log("Заброньовані слоти (детально):", bookedSlots);
+                console.log("Заброньовані часи (відформатовані):", bookedTimes);
 
                 const allTimes = [
                     '08:00', '08:30', '09:00', '09:30', '10:00', '10:30', 
@@ -45,15 +47,15 @@ function updateTimeSlots() {
                     const [hours, minutes] = time.split(':').map(Number);
                     const timeInMinutes = hours * 60 + minutes;
 
-                    const isBooked = bookedSlots.some(slot => {
-                        const [bookedHours, bookedMinutes] = slot.time.split(':').map(Number);
+                    const isBooked = bookedTimes.some(bookedTime => {
+                        const [bookedHours, bookedMinutes] = bookedTime.split(':').map(Number);
                         const bookedTimeInMinutes = bookedHours * 60 + bookedMinutes;
 
-                        // Умови: дата збігається та час потрапляє у 90 хвилин
-                        return slot.date === dateInput && Math.abs(timeInMinutes - bookedTimeInMinutes) < 90;
+                        // Перевіряємо збіг із заброньованим часом або відстань менш ніж 90 хвилин
+                        return Math.abs(timeInMinutes - bookedTimeInMinutes) < 90;
                     });
 
-                    option.disabled = isBooked;
+                    option.disabled = isBooked; // Заблокувати час, якщо він уже заброньований
                     timeSelect.appendChild(option);
                 });
             })
@@ -69,6 +71,7 @@ function updateTimeSlots() {
         timeSelect.appendChild(option);
     }
 }
+
 
 
 
