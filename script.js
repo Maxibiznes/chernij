@@ -21,10 +21,16 @@ function updateTimeSlots() {
         fetch(url)
             .then(response => response.json())
             .then(data => {
-                // Додаємо логування для перевірки відповіді від API
-                console.log("Дані, отримані від API:", data); // Перевіряємо структуру даних
-                const bookedTimes = data.map(row => row[1]); // Масив заброньованих часів
-                console.log("Заброньовані часи:", bookedTimes); // Перевіряємо заброньовані часи
+                console.log("Дані, отримані від API:", data); // Лог для перевірки
+
+                // Перетворення заброньованих часів у формат HH:mm
+                const bookedTimes = data.map(row => {
+                    const date = new Date(row[1]);
+                    const hours = date.getHours().toString().padStart(2, '0');
+                    const minutes = date.getMinutes().toString().padStart(2, '0');
+                    return `${hours}:${minutes}`;
+                });
+                console.log("Заброньовані часи (відформатовані):", bookedTimes);
 
                 const allTimes = [
                     '08:00', '08:30', '09:00', '09:30', '10:00', '10:30', 
@@ -45,7 +51,6 @@ function updateTimeSlots() {
                         const [bookedHours, bookedMinutes] = bookedTime.split(':').map(Number);
                         const bookedTimeInMinutes = bookedHours * 60 + bookedMinutes;
 
-                        // Перевіряємо збіг із заброньованим часом або відстань менш ніж 2 години
                         return Math.abs(timeInMinutes - bookedTimeInMinutes) < 120;
                     });
 
@@ -65,6 +70,7 @@ function updateTimeSlots() {
         timeSelect.appendChild(option);
     }
 }
+
 
   
 
