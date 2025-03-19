@@ -21,14 +21,14 @@ function updateTimeSlots() {
         fetch(url)
             .then(response => response.json())
             .then(data => {
-                console.log("Дані, отримані від API:", data); // Лог для перевірки
+                console.log("Дані, отримані від API:", data);
 
-                // Зберігаємо всі записи з датою та часом
-                const bookedSlots = data.map(row => ({
-                    date: row[0], // Дата запису
-                    time: new Date(row[1]).toTimeString().slice(0, 5) // Час у форматі HH:mm
-                }));
-                console.log("Заброньовані слоти:", bookedSlots); // Лог для перевірки
+                const bookedSlots = data.map(row => {
+                    const date = row[0];
+                    const time = new Date(row[1]).toTimeString().slice(0, 5);
+                    return { date, time };
+                });
+                console.log("Заброньовані слоти (детально):", bookedSlots);
 
                 const allTimes = [
                     '08:00', '08:30', '09:00', '09:30', '10:00', '10:30', 
@@ -45,16 +45,15 @@ function updateTimeSlots() {
                     const [hours, minutes] = time.split(':').map(Number);
                     const timeInMinutes = hours * 60 + minutes;
 
-                    // Додаємо перевірку дати
                     const isBooked = bookedSlots.some(slot => {
                         const [bookedHours, bookedMinutes] = slot.time.split(':').map(Number);
                         const bookedTimeInMinutes = bookedHours * 60 + bookedMinutes;
 
-                        // Порівнюємо дату і час
+                        // Умови: дата збігається та час потрапляє у 90 хвилин
                         return slot.date === dateInput && Math.abs(timeInMinutes - bookedTimeInMinutes) < 90;
                     });
 
-                    option.disabled = isBooked; // Заблокувати час, якщо він уже заброньований для цієї дати
+                    option.disabled = isBooked;
                     timeSelect.appendChild(option);
                 });
             })
@@ -70,6 +69,7 @@ function updateTimeSlots() {
         timeSelect.appendChild(option);
     }
 }
+
 
 
 
