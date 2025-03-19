@@ -15,6 +15,10 @@ function updateTimeSlots() {
     const timeSelect = document.getElementById('time');
     timeSelect.innerHTML = ''; // Очищуємо список часових слотів
 
+    // Отримуємо сьогоднішню дату у форматі "YYYY-MM-DD"
+    const todayDateObj = new Date();
+    const todayStr = todayDateObj.toISOString().split('T')[0];
+
     if (dateInput) {
         const url = `https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec?date=${dateInput}`;
 
@@ -23,9 +27,9 @@ function updateTimeSlots() {
             .then(data => {
                 console.log("Дані, отримані від API:", data);
 
-                // Фільтруємо дані за вибраною датою:
+                // Фільтруємо дані, щоб отримати записи лише для вибраної дати.
                 const filteredData = data.filter(row => {
-                    // Припускаємо, що row[0] містить дату книги (формат який приймає Google Apps Script)
+                    // Припускаємо, що row[0] містить дату у форматі, який можна перетворити у "YYYY-MM-DD"
                     const dateFromRow = new Date(row[0]);
                     const year = dateFromRow.getFullYear();
                     const month = (dateFromRow.getMonth() + 1).toString().padStart(2, '0');
@@ -34,7 +38,7 @@ function updateTimeSlots() {
                     return rowDateStr === dateInput;
                 });
 
-                // Перетворення заброньованих часів у формат HH:mm з відфільтрованих даних
+                // Перетворення заброньованих часів у формат HH:mm із відфільтрованих даних
                 const bookedTimes = filteredData.map(row => {
                     const time = new Date(row[1]);
                     const hours = time.getHours().toString().padStart(2, '0');
@@ -50,7 +54,14 @@ function updateTimeSlots() {
                     '17:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00'
                 ];
 
-                // Для кожного можливого слота перевіряємо, чи він вже заброньований для вибраної дати
+                // Якщо дата вибрана зараз (сьогодні), визначаємо нинішній час у хвилинах
+                let currentMinutes = 0;
+                if (dateInput === todayStr) {
+                    const now = new Date();
+                    currentMinutes = now.getHours() * 60 + now.getMinutes();
+                }
+
+                // Створюємо опції для кожного слота
                 allTimes.forEach(time => {
                     const option = document.createElement('option');
                     option.value = time;
@@ -59,14 +70,20 @@ function updateTimeSlots() {
                     const [slotHours, slotMinutes] = time.split(':').map(Number);
                     const timeInMinutes = slotHours * 60 + slotMinutes;
 
+                    // Перевірка: чи вже заброньований для цієї дати
                     const isBooked = bookedTimes.some(bookedTime => {
                         const [bookedHours, bookedMinutes] = bookedTime.split(':').map(Number);
                         const bookedTimeInMinutes = bookedHours * 60 + bookedMinutes;
-                        // Якщо різниця менша за 90 хвилин, вважаємо слот зайнятим
+                        // Якщо різниця менша за 90 хвилин, вважаємо слот заброньованим
                         return Math.abs(timeInMinutes - bookedTimeInMinutes) < 90;
                     });
 
-                    option.disabled = isBooked;
+                    // Якщо обрана дата сьогодні - вимикаємо і ті слоти, що вже минули по часу
+                    const isPast = dateInput === todayStr && timeInMinutes < currentMinutes;
+
+                    // Якщо слот заброньований або вже в минулому, робимо його неактивним
+                    option.disabled = isBooked || isPast;
+
                     timeSelect.appendChild(option);
                 });
             })
@@ -82,6 +99,7 @@ function updateTimeSlots() {
         timeSelect.appendChild(option);
     }
 }
+
 
 
 
