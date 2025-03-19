@@ -51,7 +51,7 @@ function updateTimeSlots() {
                         const [bookedHours, bookedMinutes] = bookedTime.split(':').map(Number);
                         const bookedTimeInMinutes = bookedHours * 60 + bookedMinutes;
 
-                        return Math.abs(timeInMinutes - bookedTimeInMinutes) < 120;
+                        return Math.abs(timeInMinutes - bookedTimeInMinutes) < 110;
                     });
 
                     option.disabled = isBooked; // Заблокувати час, якщо він уже заброньований
