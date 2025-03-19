@@ -16,12 +16,16 @@ function updateTimeSlots() {
     timeSelect.innerHTML = ''; // Очищуємо список часових слотів
 
     if (dateInput) {
-        // URL твого Google Apps Script
         const url = `https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec?date=${dateInput}`;
 
         fetch(url)
             .then(response => response.json())
             .then(data => {
+                // Додаємо логування для перевірки відповіді від API
+                console.log("Дані, отримані від API:", data); // Перевіряємо структуру даних
+                const bookedTimes = data.map(row => row[1]); // Масив заброньованих часів
+                console.log("Заброньовані часи:", bookedTimes); // Перевіряємо заброньовані часи
+
                 const allTimes = [
                     '08:00', '08:30', '09:00', '09:30', '10:00', '10:30', 
                     '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', 
@@ -29,14 +33,11 @@ function updateTimeSlots() {
                     '17:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00'
                 ];
 
-                const bookedTimes = data.map(row => row[1]); // Масив заброньованих часів
-
                 allTimes.forEach(time => {
                     const option = document.createElement('option');
                     option.value = time;
                     option.textContent = time;
 
-                    // Переводимо час у хвилини для перевірки
                     const [hours, minutes] = time.split(':').map(Number);
                     const timeInMinutes = hours * 60 + minutes;
 
@@ -48,7 +49,7 @@ function updateTimeSlots() {
                         return Math.abs(timeInMinutes - bookedTimeInMinutes) < 120;
                     });
 
-                    option.disabled = isBooked; // Дезактивуємо, якщо час уже заброньований
+                    option.disabled = isBooked; // Заблокувати час, якщо він уже заброньований
                     timeSelect.appendChild(option);
                 });
             })
@@ -64,6 +65,7 @@ function updateTimeSlots() {
         timeSelect.appendChild(option);
     }
 }
+
   
 
 function bookAppointment() {  
