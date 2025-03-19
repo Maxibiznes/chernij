@@ -21,41 +21,52 @@ function updateTimeSlots() {
         fetch(url)
             .then(response => response.json())
             .then(data => {
-                console.log("Дані, отримані від API:", data); // Лог для перевірки
+                console.log("Дані, отримані від API:", data);
 
-                // Перетворення заброньованих часів у формат HH:mm
-                const bookedTimes = data.map(row => {
-                    const date = new Date(row[1]);
-                    const hours = date.getHours().toString().padStart(2, '0');
-                    const minutes = date.getMinutes().toString().padStart(2, '0');
+                // Фільтруємо дані за вибраною датою:
+                const filteredData = data.filter(row => {
+                    // Припускаємо, що row[0] містить дату книги (формат який приймає Google Apps Script)
+                    const dateFromRow = new Date(row[0]);
+                    const year = dateFromRow.getFullYear();
+                    const month = (dateFromRow.getMonth() + 1).toString().padStart(2, '0');
+                    const day = dateFromRow.getDate().toString().padStart(2, '0');
+                    const rowDateStr = `${year}-${month}-${day}`;
+                    return rowDateStr === dateInput;
+                });
+
+                // Перетворення заброньованих часів у формат HH:mm з відфільтрованих даних
+                const bookedTimes = filteredData.map(row => {
+                    const time = new Date(row[1]);
+                    const hours = time.getHours().toString().padStart(2, '0');
+                    const minutes = time.getMinutes().toString().padStart(2, '0');
                     return `${hours}:${minutes}`;
                 });
-                console.log("Заброньовані часи (відформатовані):", bookedTimes);
+                console.log("Заброньовані часи (відфільтровані):", bookedTimes);
 
                 const allTimes = [
-                    '08:00', '08:30', '09:00', '09:30', '10:00', '10:30', 
-                    '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', 
-                    '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', 
+                    '08:00', '08:30', '09:00', '09:30', '10:00', '10:30',
+                    '11:00', '11:30', '12:00', '12:30', '13:00', '13:30',
+                    '14:00', '14:30', '15:00', '15:30', '16:00', '16:30',
                     '17:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00'
                 ];
 
+                // Для кожного можливого слота перевіряємо, чи він вже заброньований для вибраної дати
                 allTimes.forEach(time => {
                     const option = document.createElement('option');
                     option.value = time;
                     option.textContent = time;
 
-                    const [hours, minutes] = time.split(':').map(Number);
-                    const timeInMinutes = hours * 60 + minutes;
+                    const [slotHours, slotMinutes] = time.split(':').map(Number);
+                    const timeInMinutes = slotHours * 60 + slotMinutes;
 
                     const isBooked = bookedTimes.some(bookedTime => {
                         const [bookedHours, bookedMinutes] = bookedTime.split(':').map(Number);
                         const bookedTimeInMinutes = bookedHours * 60 + bookedMinutes;
-
-                        // Перевіряємо збіг із заброньованим часом або відстань менш ніж 90 хвилин
+                        // Якщо різниця менша за 90 хвилин, вважаємо слот зайнятим
                         return Math.abs(timeInMinutes - bookedTimeInMinutes) < 90;
                     });
 
-                    option.disabled = isBooked; // Заблокувати час, якщо він уже заброньований
+                    option.disabled = isBooked;
                     timeSelect.appendChild(option);
                 });
             })
@@ -71,6 +82,7 @@ function updateTimeSlots() {
         timeSelect.appendChild(option);
     }
 }
+
 
 
 
