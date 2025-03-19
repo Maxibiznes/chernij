@@ -10,49 +10,61 @@ window.onload = function() {
     updateTimeSlots(); // Added to load initial time slots  
 };  
 
-function updateTimeSlots() {  
-    const dateInput = document.getElementById('date').value;  
-    const timeSelect = document.getElementById('time');  
-    timeSelect.innerHTML = '';  
+function updateTimeSlots() {
+    const dateInput = document.getElementById('date').value;
+    const timeSelect = document.getElementById('time');
+    timeSelect.innerHTML = ''; // Очищуємо список часових слотів
 
-    if (dateInput) {  
-        // Correct way to construct URL with parameters  
-        const url = `https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec?date=${dateInput}`;  
+    if (dateInput) {
+        // URL твого Google Apps Script
+        const url = `https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec?date=${dateInput}`;
 
-        fetch(url)  
-            .then(response => response.json())  
-            .then(data => {  
-                const times = ['08:00','08:30','09:00','09:30','10:00','10:30','11:00','11:30','12:00','12:30', '13:00', '13:30', '14:00', '14:30','15:00','15:30','16:00','16:30','17:00','17:30','18:00','18:30','19:00','19:30','20:00'];  
-                
-                if (data && Array.isArray(data)) {  
-                    // Фільтрація записів за вибраною датою  
-                    const bookedTimes = data.map(row => row[1]);  // Extract only the time  
-                    
-                    times.forEach(time => {  
-                        const option = document.createElement('option');  
-                        option.value = time;  
-                        option.textContent = time;  
-                        option.disabled = bookedTimes.includes(time);  
-                        timeSelect.appendChild(option);  
-                    });  
-                } else {  
-                    const option = document.createElement('option');  
-                    option.textContent = 'Немає доступних слотів';  
-                    timeSelect.appendChild(option);  
-                }  
-            })  
-            .catch(error => {  
-                console.error('Помилка завантаження слотів:', error);  
-                const option = document.createElement('option');  
-                option.textContent = 'Не вдалося завантажити слоти';  
-                timeSelect.appendChild(option);  
-            });  
-    } else {  
-        const option = document.createElement('option');  
-        option.textContent = 'Спочатку оберіть дату';  
-        timeSelect.appendChild(option);  
-    }  
-}  
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                const allTimes = [
+                    '08:00', '08:30', '09:00', '09:30', '10:00', '10:30', 
+                    '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', 
+                    '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', 
+                    '17:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00'
+                ];
+
+                const bookedTimes = data.map(row => row[1]); // Масив заброньованих часів
+
+                allTimes.forEach(time => {
+                    const option = document.createElement('option');
+                    option.value = time;
+                    option.textContent = time;
+
+                    // Переводимо час у хвилини для перевірки
+                    const [hours, minutes] = time.split(':').map(Number);
+                    const timeInMinutes = hours * 60 + minutes;
+
+                    const isBooked = bookedTimes.some(bookedTime => {
+                        const [bookedHours, bookedMinutes] = bookedTime.split(':').map(Number);
+                        const bookedTimeInMinutes = bookedHours * 60 + bookedMinutes;
+
+                        // Перевіряємо збіг із заброньованим часом або відстань менш ніж 2 години
+                        return Math.abs(timeInMinutes - bookedTimeInMinutes) < 120;
+                    });
+
+                    option.disabled = isBooked; // Дезактивуємо, якщо час уже заброньований
+                    timeSelect.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Помилка завантаження слотів:', error);
+                const option = document.createElement('option');
+                option.textContent = 'Не вдалося завантажити слоти';
+                timeSelect.appendChild(option);
+            });
+    } else {
+        const option = document.createElement('option');
+        option.textContent = 'Спочатку оберіть дату';
+        timeSelect.appendChild(option);
+    }
+}
+  
 
 function bookAppointment() {  
     const service = document.getElementById('service').value;  
