@@ -181,23 +181,95 @@ function logoutAdmin() {
     document.getElementById('admin-error').style.display = 'none';  
 }  
 
-function showAppointments() {  
-    // Отримання записів із Google Sheets через Google Apps Script endpoint  
-    fetch('https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec')  
-        .then(response => response.json())  
-        .then(data => {  
-            const list = document.getElementById('appointments-list');  
-            list.innerHTML = '';  
-            // Припускаємо, що структура data наступна:  
-            // row[0] - дата, row[1] - час, row[2] - послуга, row[3] - ім’я, row[4] - телефон  
-            data.forEach(row => {  
-                const li = document.createElement('li');  
-                li.textContent = `${row[0]} о ${row[1]} - ${row[2]} для ${row[3]} (${row[4]})`;  
-                list.appendChild(li);  
-            });  
-        })  
-        .catch(error => console.error('Помилка завантаження записів:', error));  
-}  
+function showAppointments() {
+    // Отримання записів із Google Sheets через Google Apps Script endpoint
+    fetch('https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec')
+        .then(response => response.json())
+        .then(data => {
+            const container = document.getElementById('appointments-list');
+            container.innerHTML = ''; // Очищення контейнера
+
+            // Створення таблиці
+            const table = document.createElement('table');
+            table.classList.add('appointments-table'); // Для подальшого стилювання
+
+            // Заголовок таблиці з додатковими стовпцями: нумерація та дії
+            const headers = ['№', 'Дата', 'Час', 'Послуга', 'Ім’я', 'Телефон', 'Дії'];
+            const thead = document.createElement('thead');
+            const headerRow = document.createElement('tr');
+            headers.forEach(headerText => {
+                const th = document.createElement('th');
+                th.textContent = headerText;
+                headerRow.appendChild(th);
+            });
+            thead.appendChild(headerRow);
+            table.appendChild(thead);
+
+            // Тіло таблиці
+            const tbody = document.createElement('tbody');
+            data.forEach((row, index) => {
+                const tr = document.createElement('tr');
+
+                // Стовпець з номером запису
+                const tdIndex = document.createElement('td');
+                tdIndex.textContent = index + 1;
+                tr.appendChild(tdIndex);
+
+                // Форматування дати – перший стовпець (row[0])
+                let dateStr = '';
+                if (row[0]) {
+                    const dateObj = new Date(row[0]);
+                    const day = dateObj.getDate().toString().padStart(2, '0');
+                    const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
+                    const year = dateObj.getFullYear();
+                    dateStr = `${day}.${month}.${year}`;
+                }
+                const tdDate = document.createElement('td');
+                tdDate.textContent = dateStr;
+                tr.appendChild(tdDate);
+
+                // Форматування часу – другий стовпець (row[1])
+                let timeStr = '';
+                if (row[1]) {
+                    const timeObj = new Date(row[1]);
+                    const hours = timeObj.getHours().toString().padStart(2, '0');
+                    const minutes = timeObj.getMinutes().toString().padStart(2, '0');
+                    timeStr = `${hours}:${minutes}`;
+                }
+                const tdTime = document.createElement('td');
+                tdTime.textContent = timeStr;
+                tr.appendChild(tdTime);
+
+                // Стовпець послуги (row[2])
+                const tdService = document.createElement('td');
+                tdService.textContent = row[2] || '';
+                tr.appendChild(tdService);
+
+                // Стовпець імені (row[3])
+                const tdName = document.createElement('td');
+                tdName.textContent = row[3] || '';
+                tr.appendChild(tdName);
+
+                // Стовпець телефону (row[4])
+                const tdPhone = document.createElement('td');
+                tdPhone.textContent = row[4] || '';
+                tr.appendChild(tdPhone);
+
+                // Стовпець дій – поки що тільки placeholder (пізніше тут можна додати кнопки для редагування/видалення)
+                const tdActions = document.createElement('td');
+                tdActions.textContent = '—'; // Пусте місце для дій
+                tr.appendChild(tdActions);
+
+                tbody.appendChild(tr);
+            });
+            table.appendChild(tbody);
+            container.appendChild(table);
+        })
+        .catch(error => {
+            console.error('Помилка завантаження записів:', error);
+        });
+}
+
 
 // Відкриваємо форму входу для адміна при кліку на заголовок (h1)  
 document.querySelector('h1').addEventListener('click', () => {  
