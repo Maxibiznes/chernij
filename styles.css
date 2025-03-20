@@ -18,6 +18,28 @@
     text-align: center;
     margin-bottom: 30px;
 }
+#appointments-list {
+    max-width: 100%; /* Забезпечує, що контейнер не виходить за межі батьківського елемента */
+    overflow-x: auto; /* Додає горизонтальну прокрутку, якщо таблиця ширша за контейнер */
+}
+
+.appointments-table {
+    width: 100%; /* Робить таблицю адаптивною */
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.appointments-table th,
+.appointments-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.appointments-table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
 
 .profile-pic {
     width: 150px;
