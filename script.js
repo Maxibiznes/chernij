@@ -240,6 +240,23 @@ function showAppointments() {
             console.error('Помилка завантаження записів:', error);
         });
 }
+function enableEditing(row, originalData) {
+    const fields = row.querySelectorAll('td:not(:last-child)'); // Всі комірки, окрім дій
+    const editButton = row.querySelector('button'); // Кнопка "Редагувати"
+
+    fields.forEach(field => {
+        const isEditable = field.getAttribute('contenteditable') === 'true';
+        field.setAttribute('contenteditable', !isEditable);
+        field.style.backgroundColor = isEditable ? '' : '#f9f9f9'; // Виділення фону при редагуванні
+    });
+
+    if (editButton.textContent === 'Редагувати') {
+        editButton.textContent = 'Зберегти';
+        editButton.addEventListener('click', () => saveChanges(row, originalData)); // Додаємо подію збереження
+    } else {
+        editButton.textContent = 'Редагувати';
+    }
+}
 
 
 
