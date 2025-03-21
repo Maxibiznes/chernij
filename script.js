@@ -182,7 +182,6 @@ function logoutAdmin() {
 }  
 
 function showAppointments() {
-    // Отримання записів із Google Sheets через Google Apps Script endpoint
     fetch('https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec')
         .then(response => response.json())
         .then(data => {
@@ -191,9 +190,9 @@ function showAppointments() {
 
             // Створення таблиці
             const table = document.createElement('table');
-            table.classList.add('appointments-table'); // Для подальшого стилювання
+            table.classList.add('appointments-table');
 
-            // Заголовок таблиці з додатковими стовпцями: нумерація та дії
+            // Заголовок таблиці
             const headers = ['№', 'Дата', 'Час', 'Послуга', 'Ім’я', 'Телефон', 'Дії'];
             const thead = document.createElement('thead');
             const headerRow = document.createElement('tr');
@@ -215,49 +214,21 @@ function showAppointments() {
                 tdIndex.textContent = index + 1;
                 tr.appendChild(tdIndex);
 
-                // Форматування дати – перший стовпець (row[0])
-                let dateStr = '';
-                if (row[0]) {
-                    const dateObj = new Date(row[0]);
-                    const day = dateObj.getDate().toString().padStart(2, '0');
-                    const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
-                    const year = dateObj.getFullYear();
-                    dateStr = `${day}.${month}.${year}`;
-                }
-                const tdDate = document.createElement('td');
-                tdDate.textContent = dateStr;
-                tr.appendChild(tdDate);
+                // Інші дані
+                ['Дата', 'Час', 'Послуга', 'Ім’я', 'Телефон'].forEach((field, fieldIndex) => {
+                    const td = document.createElement('td');
+                    td.textContent = row[fieldIndex];
+                    td.setAttribute('contenteditable', false); // Для редагування пізніше
+                    td.classList.add(`field-${fieldIndex}`); // Додаємо клас для зручності
+                    tr.appendChild(td);
+                });
 
-                // Форматування часу – другий стовпець (row[1])
-                let timeStr = '';
-                if (row[1]) {
-                    const timeObj = new Date(row[1]);
-                    const hours = timeObj.getHours().toString().padStart(2, '0');
-                    const minutes = timeObj.getMinutes().toString().padStart(2, '0');
-                    timeStr = `${hours}:${minutes}`;
-                }
-                const tdTime = document.createElement('td');
-                tdTime.textContent = timeStr;
-                tr.appendChild(tdTime);
-
-                // Стовпець послуги (row[2])
-                const tdService = document.createElement('td');
-                tdService.textContent = row[2] || '';
-                tr.appendChild(tdService);
-
-                // Стовпець імені (row[3])
-                const tdName = document.createElement('td');
-                tdName.textContent = row[3] || '';
-                tr.appendChild(tdName);
-
-                // Стовпець телефону (row[4])
-                const tdPhone = document.createElement('td');
-                tdPhone.textContent = row[4] || '';
-                tr.appendChild(tdPhone);
-
-                // Стовпець дій – поки що тільки placeholder (пізніше тут можна додати кнопки для редагування/видалення)
+                // Стовпець дій
                 const tdActions = document.createElement('td');
-                tdActions.textContent = '—'; // Пусте місце для дій
+                const editButton = document.createElement('button');
+                editButton.textContent = 'Редагувати';
+                editButton.addEventListener('click', () => enableEditing(tr, row)); // Додаємо подію
+                tdActions.appendChild(editButton);
                 tr.appendChild(tdActions);
 
                 tbody.appendChild(tr);
@@ -269,6 +240,7 @@ function showAppointments() {
             console.error('Помилка завантаження записів:', error);
         });
 }
+
 
 
 // Відкриваємо форму входу для адміна при кліку на заголовок (h1)  
