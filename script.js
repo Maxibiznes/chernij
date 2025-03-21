@@ -257,6 +257,35 @@ function enableEditing(row, originalData) {
         editButton.textContent = 'Редагувати';
     }
 }
+function saveChanges(row, originalData) {
+    const updatedData = [];
+    const fields = row.querySelectorAll('td:not(:last-child)');
+
+    fields.forEach((field, index) => {
+        updatedData.push(field.textContent);
+    });
+
+    // Відправлення даних у Google Apps Script
+    fetch('https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec', {
+        method: 'POST',
+        body: JSON.stringify({
+            original: originalData, // Передаємо оригінальні дані для пошуку
+            updated: updatedData // Передаємо оновлені дані
+        }),
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(result => {
+        console.log('Успішно оновлено:', result);
+        alert('Запис успішно оновлено!');
+    })
+    .catch(error => {
+        console.error('Помилка оновлення запису:', error);
+        alert('Не вдалося оновити запис.');
+    });
+}
 
 
 
