@@ -266,7 +266,7 @@ function saveChanges(row, originalData) {
     });
 
     // Відправлення даних у Google Apps Script
-    fetch('https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec', {
+    fetch('https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec', {
         method: 'POST',
         body: JSON.stringify({
             original: originalData, // Передаємо оригінальні дані для пошуку
