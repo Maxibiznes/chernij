@@ -182,111 +182,102 @@ function logoutAdmin() {
 }  
 
 function showAppointments() {
-    fetch('https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec')
-        .then(response => response.json())
-        .then(data => {
-            const container = document.getElementById('appointments-list');
-            container.innerHTML = ''; // Очищення контейнера
+  fetch('https://script.google.com/macros/s/.../exec')
+    .then(response => response.json())
+    .then(data => {
+      const container = document.getElementById('appointments-list');
+      container.innerHTML = '';
 
-            // Створення таблиці
-            const table = document.createElement('table');
-            table.classList.add('appointments-table');
+      const table = document.createElement('table');
+      table.classList.add('appointments-table');
 
-            // Заголовок таблиці
-            const headers = ['№', 'Дата', 'Час', 'Послуга', 'Ім’я', 'Телефон', 'Дії'];
-            const thead = document.createElement('thead');
-            const headerRow = document.createElement('tr');
-            headers.forEach(headerText => {
-                const th = document.createElement('th');
-                th.textContent = headerText;
-                headerRow.appendChild(th);
-            });
-            thead.appendChild(headerRow);
-            table.appendChild(thead);
+      const headers = ['№', 'ID', 'Дата', 'Час', 'Послуга', 'Ім’я', 'Телефон', 'Дії'];
+      const thead = document.createElement('thead');
+      const headerRow = document.createElement('tr');
+      headers.forEach(headerText => {
+        const th = document.createElement('th');
+        th.textContent = headerText;
+        headerRow.appendChild(th);
+      });
+      thead.appendChild(headerRow);
+      table.appendChild(thead);
 
-            // Тіло таблиці
-            const tbody = document.createElement('tbody');
-            data.forEach((row, index) => {
-                const tr = document.createElement('tr');
+      const tbody = document.createElement('tbody');
+      data.forEach((row, index) => {
+        const tr = document.createElement('tr');
 
-                // Стовпець з номером запису
-                const tdIndex = document.createElement('td');
-                tdIndex.textContent = index + 1;
-                tr.appendChild(tdIndex);
+        const tdIndex = document.createElement('td');
+        tdIndex.textContent = index + 1;
+        tr.appendChild(tdIndex);
 
-                // Інші дані
-                ['Дата', 'Час', 'Послуга', 'Ім’я', 'Телефон'].forEach((field, fieldIndex) => {
-                    const td = document.createElement('td');
-                    td.textContent = row[fieldIndex];
-                    td.setAttribute('contenteditable', false); // Для редагування пізніше
-                    td.classList.add(`field-${fieldIndex}`); // Додаємо клас для зручності
-                    tr.appendChild(td);
-                });
-
-                // Стовпець дій
-                const tdActions = document.createElement('td');
-                const editButton = document.createElement('button');
-                editButton.textContent = 'Редагувати';
-                editButton.addEventListener('click', () => enableEditing(tr, row)); // Додаємо подію
-                tdActions.appendChild(editButton);
-                tr.appendChild(tdActions);
-
-                tbody.appendChild(tr);
-            });
-            table.appendChild(tbody);
-            container.appendChild(table);
-        })
-        .catch(error => {
-            console.error('Помилка завантаження записів:', error);
+        const fields = [row.id, row.date, row.time, row.service, row.name, row.phone];
+        fields.forEach((field, fieldIndex) => {
+          const td = document.createElement('td');
+          td.textContent = field;
+          td.setAttribute('contenteditable', false);
+          td.classList.add(`field-${fieldIndex}`);
+          tr.appendChild(td);
         });
+
+        const tdActions = document.createElement('td');
+        const editButton = document.createElement('button');
+        editButton.textContent = 'Редагувати';
+        editButton.addEventListener('click', () => enableEditing(tr));
+        tdActions.appendChild(editButton);
+        tr.appendChild(tdActions);
+
+        tbody.appendChild(tr);
+      });
+      table.appendChild(tbody);
+      container.appendChild(table);
+    })
+    .catch(error => console.error('Помилка завантаження записів:', error));
 }
-function enableEditing(row, originalData) {
-    const fields = row.querySelectorAll('td:not(:last-child)'); // Всі комірки, окрім дій
-    const editButton = row.querySelector('button'); // Кнопка "Редагувати"
+function enableEditing(row) {
+    const fields = row.querySelectorAll('td:not(:last-child)');
+    const editButton = row.querySelector('button');
+
+    const isEditing = editButton.textContent === 'Зберегти';
 
     fields.forEach(field => {
-        const isEditable = field.getAttribute('contenteditable') === 'true';
-        field.setAttribute('contenteditable', !isEditable);
-        field.style.backgroundColor = isEditable ? '' : '#f9f9f9'; // Виділення фону при редагуванні
+        field.setAttribute('contenteditable', !isEditing);
+        field.style.backgroundColor = isEditing ? '' : '#f9f9f9';
     });
 
-    if (editButton.textContent === 'Редагувати') {
-        editButton.textContent = 'Зберегти';
-        editButton.addEventListener('click', () => saveChanges(row, originalData)); // Додаємо подію збереження
-    } else {
+    if (isEditing) {
         editButton.textContent = 'Редагувати';
+        saveChanges(row);
+    } else {
+        editButton.textContent = 'Зберегти';
     }
 }
-function saveChanges(row, originalData) {
-    const updatedData = [];
-    const fields = row.querySelectorAll('td:not(:last-child)');
+function saveChanges(row) {
+  const updatedData = [];
+  const fields = row.querySelectorAll('td:not(:last-child)');
 
-    fields.forEach((field, index) => {
-        updatedData.push(field.textContent);
-    });
+  fields.forEach(field => {
+    updatedData.push(field.textContent);
+  });
 
-    // Відправлення даних у Google Apps Script
-    fetch('https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec', {
-        method: 'POST',
-        body: JSON.stringify({
-            original: originalData, // Передаємо оригінальні дані для пошуку
-            updated: updatedData // Передаємо оновлені дані
-        }),
-        headers: {
-            'Content-Type': 'application/json',
-        }
-    })
+  fetch('https://script.google.com/macros/s/.../exec', {
+    method: 'POST',
+    body: JSON.stringify({ updated: updatedData }),
+    headers: { 'Content-Type': 'application/json' }
+  })
     .then(response => response.json())
     .then(result => {
-        console.log('Успішно оновлено:', result);
+      if (result.status === "Success") {
         alert('Запис успішно оновлено!');
+        showAppointments(); // Оновлюємо таблицю
+      } else {
+        alert('Помилка: ' + result.message);
+      }
     })
     .catch(error => {
-        console.error('Помилка оновлення запису:', error);
-        alert('Не вдалося оновити запис.');
+      console.error('Помилка оновлення запису:', error);
+      alert('Не вдалося оновити запис.');
     });
 }
-
 
 
 // Відкриваємо форму входу для адміна при кліку на заголовок (h1)  
