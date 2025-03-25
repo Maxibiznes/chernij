@@ -182,7 +182,7 @@ function logoutAdmin() {
 }  
 
 function showAppointments() {
-  fetch('https://script.google.com/macros/s/.../exec')
+  fetch('https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec')
     .then(response => response.json())
     .then(data => {
       const container = document.getElementById('appointments-list');
@@ -259,7 +259,7 @@ function saveChanges(row) {
     updatedData.push(field.textContent);
   });
 
-  fetch('https://script.google.com/macros/s/.../exec', {
+  fetch('https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec', {
     method: 'POST',
     body: JSON.stringify({ updated: updatedData }),
     headers: { 'Content-Type': 'application/json' }
