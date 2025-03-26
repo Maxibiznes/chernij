@@ -2,35 +2,37 @@ window.onload = function() {
     let dateInput = document.getElementById("date");  
     let today = new Date();  
     let dd = String(today.getDate()).padStart(2, '0');  
-    let mm = String(today.getMonth() + 1).padStart(2, '0'); // Січень - 0!  
+    let mm = String(today.getMonth() + 1).padStart(2, '0');  
     let yyyy = today.getFullYear();  
 
     today = yyyy + '-' + mm + '-' + dd;  
     dateInput.setAttribute("min", today);  
-    updateTimeSlots(); // Added to load initial time slots  
+    updateTimeSlots();  
 };  
 
 function updateTimeSlots() {
     const dateInput = document.getElementById('date').value;
     const timeSelect = document.getElementById('time');
-    timeSelect.innerHTML = ''; // Очищуємо список часових слотів
+    timeSelect.innerHTML = '';
 
-    // Отримуємо сьогоднішню дату у форматі "YYYY-MM-DD"
     const todayDateObj = new Date();
     const todayStr = todayDateObj.toISOString().split('T')[0];
 
     if (dateInput) {
         const url = `https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec?date=${dateInput}`;
 
-        fetch(url)
-            .then(response => response.json())
+        fetch(url, {
+            method: 'GET', // Явно вказуємо метод
+            headers: { 'Content-Type': 'application/json' }
+        })
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.json();
+            })
             .then(data => {
                 console.log("Дані, отримані від API:", data);
-
-                // Фільтруємо дані, щоб отримати записи лише для вибраної дати.
                 const filteredData = data.filter(row => {
-                    // Припускаємо, що row[0] містить дату у форматі, який можна перетворити у "YYYY-MM-DD"
-                    const dateFromRow = new Date(row[0]);
+                    const dateFromRow = new Date(row.date); // Змінено row[0] на row.date
                     const year = dateFromRow.getFullYear();
                     const month = (dateFromRow.getMonth() + 1).toString().padStart(2, '0');
                     const day = dateFromRow.getDate().toString().padStart(2, '0');
@@ -38,13 +40,7 @@ function updateTimeSlots() {
                     return rowDateStr === dateInput;
                 });
 
-                // Перетворення заброньованих часів у формат HH:mm із відфільтрованих даних
-                const bookedTimes = filteredData.map(row => {
-                    const time = new Date(row[1]);
-                    const hours = time.getHours().toString().padStart(2, '0');
-                    const minutes = time.getMinutes().toString().padStart(2, '0');
-                    return `${hours}:${minutes}`;
-                });
+                const bookedTimes = filteredData.map(row => row.time); // Змінено row[1] на row.time
                 console.log("Заброньовані часи (відфільтровані):", bookedTimes);
 
                 const allTimes = [
@@ -54,14 +50,12 @@ function updateTimeSlots() {
                     '17:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00'
                 ];
 
-                // Якщо дата вибрана зараз (сьогодні), визначаємо нинішній час у хвилинах
                 let currentMinutes = 0;
                 if (dateInput === todayStr) {
                     const now = new Date();
                     currentMinutes = now.getHours() * 60 + now.getMinutes();
                 }
 
-                // Створюємо опції для кожного слота
                 allTimes.forEach(time => {
                     const option = document.createElement('option');
                     option.value = time;
@@ -70,18 +64,13 @@ function updateTimeSlots() {
                     const [slotHours, slotMinutes] = time.split(':').map(Number);
                     const timeInMinutes = slotHours * 60 + slotMinutes;
 
-                    // Перевірка: чи вже заброньований для цієї дати
                     const isBooked = bookedTimes.some(bookedTime => {
                         const [bookedHours, bookedMinutes] = bookedTime.split(':').map(Number);
                         const bookedTimeInMinutes = bookedHours * 60 + bookedMinutes;
-                        // Якщо різниця менша за 90 хвилин, вважаємо слот заброньованим
                         return Math.abs(timeInMinutes - bookedTimeInMinutes) < 90;
                     });
 
-                    // Якщо обрана дата сьогодні - вимикаємо і ті слоти, що вже минули по часу
                     const isPast = dateInput === todayStr && timeInMinutes < currentMinutes;
-
-                    // Якщо слот заброньований або вже в минулому, робимо його неактивним
                     option.disabled = isBooked || isPast;
 
                     timeSelect.appendChild(option);
@@ -99,16 +88,6 @@ function updateTimeSlots() {
         timeSelect.appendChild(option);
     }
 }
-
-
-
-
-
-
-
-
-
-  
 
 function bookAppointment() {  
     const service = document.getElementById('service').value;  
@@ -136,24 +115,30 @@ function bookAppointment() {
         phone  
     };  
 
-    // Відправка даних на сервер (Google Apps Script endpoint)  
     fetch('https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec', {  
         method: 'POST',  
+        headers: { 'Content-Type': 'application/json' }, // Додано заголовок
         body: JSON.stringify(data)  
     })  
-    .then(response => response.text())  
+    .then(response => {
+        if (!response.ok) throw new Error('Network response was not ok');
+        return response.json(); // Змінено на json()
+    })
     .then(result => {  
-        document.getElementById('confirmation').textContent =  
-          `Ви записані на ${data.service} до Оксани Черній на ${date} о ${time}. Дякуємо, ${name}!`;  
-        document.getElementById('confirmation').style.display = 'block';  
-        updateTimeSlots(); // Оновлюємо слоти після запису  
+        if (result.status === "Success") {
+            document.getElementById('confirmation').textContent =  
+              `Ви записані на ${data.service} до Оксани Черній на ${date} о ${time}. Дякуємо, ${name}!`;  
+            document.getElementById('confirmation').style.display = 'block';  
+            updateTimeSlots();  
+        } else {
+            throw new Error(result.message || 'Unknown error');
+        }
     })  
     .catch(error => {  
         alert('Помилка запису: ' + error);  
         console.error('Помилка запису:', error);  
     });  
 
-    // Очищення полів для імені та телефону після запису  
     document.getElementById('name').value = '';  
     document.getElementById('phone').value = '';  
 }  
@@ -161,11 +146,9 @@ function bookAppointment() {
 function loginAdmin() {  
     const passwordInput = document.getElementById('admin-password');  
     const password = passwordInput.value;  
-    // Перевірка правильності пароля для адміна (змініть за потребою)  
     if (password === 'admin123') {  
         document.querySelector('.admin-login').style.display = 'none';  
         document.querySelector('.admin-panel').style.display = 'block';  
-        // Скидання повідомлення про помилку та поля пароля  
         document.getElementById('admin-error').style.display = 'none';  
         passwordInput.value = '';  
         showAppointments();  
@@ -182,57 +165,64 @@ function logoutAdmin() {
 }  
 
 function showAppointments() {
-  fetch('https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec')
-    .then(response => response.json())
+    fetch('https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Network response was not ok');
+        return response.json();
+    })
     .then(data => {
-      const container = document.getElementById('appointments-list');
-      container.innerHTML = '';
+        const container = document.getElementById('appointments-list');
+        container.innerHTML = '';
 
-      const table = document.createElement('table');
-      table.classList.add('appointments-table');
+        const table = document.createElement('table');
+        table.classList.add('appointments-table');
 
-      const headers = ['№', 'ID', 'Дата', 'Час', 'Послуга', 'Ім’я', 'Телефон', 'Дії'];
-      const thead = document.createElement('thead');
-      const headerRow = document.createElement('tr');
-      headers.forEach(headerText => {
-        const th = document.createElement('th');
-        th.textContent = headerText;
-        headerRow.appendChild(th);
-      });
-      thead.appendChild(headerRow);
-      table.appendChild(thead);
-
-      const tbody = document.createElement('tbody');
-      data.forEach((row, index) => {
-        const tr = document.createElement('tr');
-
-        const tdIndex = document.createElement('td');
-        tdIndex.textContent = index + 1;
-        tr.appendChild(tdIndex);
-
-        const fields = [row.id, row.date, row.time, row.service, row.name, row.phone];
-        fields.forEach((field, fieldIndex) => {
-          const td = document.createElement('td');
-          td.textContent = field;
-          td.setAttribute('contenteditable', false);
-          td.classList.add(`field-${fieldIndex}`);
-          tr.appendChild(td);
+        const headers = ['№', 'ID', 'Дата', 'Час', 'Послуга', 'Ім’я', 'Телефон', 'Дії'];
+        const thead = document.createElement('thead');
+        const headerRow = document.createElement('tr');
+        headers.forEach(headerText => {
+            const th = document.createElement('th');
+            th.textContent = headerText;
+            headerRow.appendChild(th);
         });
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
 
-        const tdActions = document.createElement('td');
-        const editButton = document.createElement('button');
-        editButton.textContent = 'Редагувати';
-        editButton.addEventListener('click', () => enableEditing(tr));
-        tdActions.appendChild(editButton);
-        tr.appendChild(tdActions);
+        const tbody = document.createElement('tbody');
+        data.forEach((row, index) => {
+            const tr = document.createElement('tr');
 
-        tbody.appendChild(tr);
-      });
-      table.appendChild(tbody);
-      container.appendChild(table);
+            const tdIndex = document.createElement('td');
+            tdIndex.textContent = index + 1;
+            tr.appendChild(tdIndex);
+
+            const fields = [row.id, row.date, row.time, row.service, row.name, row.phone];
+            fields.forEach((field, fieldIndex) => {
+                const td = document.createElement('td');
+                td.textContent = field;
+                td.setAttribute('contenteditable', false);
+                td.classList.add(`field-${fieldIndex}`);
+                tr.appendChild(td);
+            });
+
+            const tdActions = document.createElement('td');
+            const editButton = document.createElement('button');
+            editButton.textContent = 'Редагувати';
+            editButton.addEventListener('click', () => enableEditing(tr));
+            tdActions.appendChild(editButton);
+            tr.appendChild(tdActions);
+
+            tbody.appendChild(tr);
+        });
+        table.appendChild(tbody);
+        container.appendChild(table);
     })
     .catch(error => console.error('Помилка завантаження записів:', error));
 }
+
 function enableEditing(row) {
     const fields = row.querySelectorAll('td:not(:last-child)');
     const editButton = row.querySelector('button');
@@ -251,36 +241,38 @@ function enableEditing(row) {
         editButton.textContent = 'Зберегти';
     }
 }
+
 function saveChanges(row) {
-  const updatedData = [];
-  const fields = row.querySelectorAll('td:not(:last-child)');
+    const updatedData = [];
+    const fields = row.querySelectorAll('td:not(:last-child)');
 
-  fields.forEach(field => {
-    updatedData.push(field.textContent);
-  });
+    fields.forEach(field => {
+        updatedData.push(field.textContent);
+    });
 
-  fetch('https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec', {
-    method: 'POST',
-    body: JSON.stringify({ updated: updatedData }),
-    headers: { 'Content-Type': 'application/json' }
-  })
-    .then(response => response.json())
+    fetch('https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ updated: updatedData })
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Network response was not ok');
+        return response.json();
+    })
     .then(result => {
-      if (result.status === "Success") {
-        alert('Запис успішно оновлено!');
-        showAppointments(); // Оновлюємо таблицю
-      } else {
-        alert('Помилка: ' + result.message);
-      }
+        if (result.status === "Success") {
+            alert('Запис успішно оновлено!');
+            showAppointments();
+        } else {
+            alert('Помилка: ' + result.message);
+        }
     })
     .catch(error => {
-      console.error('Помилка оновлення запису:', error);
-      alert('Не вдалося оновити запис.');
+        console.error('Помилка оновлення запису:', error);
+        alert('Не вдалося оновити запис.');
     });
 }
 
-
-// Відкриваємо форму входу для адміна при кліку на заголовок (h1)  
 document.querySelector('h1').addEventListener('click', () => {  
     document.querySelector('.admin-login').style.display = 'block';  
-});  
+});
