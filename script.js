@@ -1,217 +1,295 @@
-// ===============================================================
-// КОНФІГУРАЦІЯ
-// ===============================================================
+window.onload = function() {  
+    let dateInput = document.getElementById("date");  
+    let today = new Date();  
+    let dd = String(today.getDate()).padStart(2, '0');  
+    let mm = String(today.getMonth() + 1).padStart(2, '0'); // Січень - 0!  
+    let yyyy = today.getFullYear();  
 
-// ВАЖЛИВО: URL твого розгорнутого Google Apps Script
-const scriptURL = 'https://script.google.com/macros/s/AKfycbyLg8tUqX_s18Ule4t91m_sJ3y8v_V1YyW1hV8P1R2G9s8s7D0V7c6v/exec'; // <- Твій URL тут
+    today = yyyy + '-' + mm + '-' + dd;  
+    dateInput.setAttribute("min", today);  
+    updateTimeSlots(); // Added to load initial time slots  
+};  
 
-// Налаштування доступних часових слотів
-const timeSlotsConfig = {
-    startHour: 9,  // Початок роботи (години, 24-годинний формат)
-    endHour: 18,   // Кінець роботи (година, до якої включно можна записатись, наприклад 18 означає останній слот о 17:30 або 17:00 залежно від interval)
-    interval: 30   // Інтервал між слотами у хвилинах (наприклад, 30)
-};
+function updateTimeSlots() {
+    const dateInput = document.getElementById('date').value;
+    const timeSelect = document.getElementById('time');
+    timeSelect.innerHTML = ''; // Очищуємо список часових слотів
 
-// ===============================================================
-// ОТРИМАННЯ ЕЛЕМЕНТІВ DOM
-// ===============================================================
-const form = document.forms['submit-to-google-sheet'];
-const msg = document.getElementById("msg");
-const dateInput = document.getElementById('date-visit');
-const timeSelect = document.getElementById('time-select'); // Випадаючий список часу
-const timeStatus = document.getElementById('time-status'); // Для повідомлень під полем часу
+    // Отримуємо сьогоднішню дату у форматі "YYYY-MM-DD"
+    const todayDateObj = new Date();
+    const todayStr = todayDateObj.toISOString().split('T')[0];
 
-// ===============================================================
-// ГЕНЕРАЦІЯ ЧАСОВИХ СЛОТІВ
-// ===============================================================
+    if (dateInput) {
+        const url = `https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec?date=${dateInput}`;
 
-/**
- * Генерує список всіх можливих часових слотів за день у форматі HH:MM.
- * @returns {string[]} Масив рядків часу, наприклад ["09:00", "09:30", ...]
- */
-function generateAllPossibleTimes() {
-    const times = [];
-    const { startHour, endHour, interval } = timeSlotsConfig;
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                console.log("Дані, отримані від API:", data);
 
-    for (let h = startHour; h < endHour; h++) { // < endHour, щоб не створювати слот точно о endHour
-        for (let m = 0; m < 60; m += interval) {
-            // Форматуємо години та хвилини з ведучими нулями
-            const hourFormatted = h.toString().padStart(2, '0');
-            const minuteFormatted = m.toString().padStart(2, '0');
-            times.push(`${hourFormatted}:${minuteFormatted}`);
-        }
-    }
-    // Перевіряємо, чи потрібно додати слот рівно о endHour:00 (якщо інтервал це дозволяє)
-    // Наприклад, якщо endHour=18, interval=30, то останній слот буде 17:30.
-    // Якщо endHour=18, interval=60, то останній буде 17:00.
-    // Якщо потрібен слот рівно о endHour:00, зміни логіку або збільш endHour.
+                // Фільтруємо дані, щоб отримати записи лише для вибраної дати.
+                const filteredData = data.filter(row => {
+                    // Припускаємо, що row[0] містить дату у форматі, який можна перетворити у "YYYY-MM-DD"
+                    const dateFromRow = new Date(row[0]);
+                    const year = dateFromRow.getFullYear();
+                    const month = (dateFromRow.getMonth() + 1).toString().padStart(2, '0');
+                    const day = dateFromRow.getDate().toString().padStart(2, '0');
+                    const rowDateStr = `${year}-${month}-${day}`;
+                    return rowDateStr === dateInput;
+                });
 
-    console.log("Згенеровано можливі слоти:", times);
-    return times;
-}
+                // Перетворення заброньованих часів у формат HH:mm із відфільтрованих даних
+                const bookedTimes = filteredData.map(row => {
+                    const time = new Date(row[1]);
+                    const hours = time.getHours().toString().padStart(2, '0');
+                    const minutes = time.getMinutes().toString().padStart(2, '0');
+                    return `${hours}:${minutes}`;
+                });
+                console.log("Заброньовані часи (відфільтровані):", bookedTimes);
 
-// ===============================================================
-// РОБОТА З ФОРМОЮ ТА ЧАСОМ
-// ===============================================================
+                const allTimes = [
+                    '08:00', '08:30', '09:00', '09:30', '10:00', '10:30',
+                    '11:00', '11:30', '12:00', '12:30', '13:00', '13:30',
+                    '14:00', '14:30', '15:00', '15:30', '16:00', '16:30',
+                    '17:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00'
+                ];
 
-/**
- * Оновлює випадаючий список часу на основі вибраної дати.
- * @param {string} selectedDate - Дата у форматі YYYY-MM-DD.
- */
-async function updateAvailableTimes(selectedDate) {
-    // Блокуємо список часу і показуємо статус завантаження
-    timeSelect.disabled = true;
-    timeSelect.innerHTML = '<option value="" disabled selected>Завантаження...</option>';
-    timeStatus.textContent = 'Отримання даних про зайнятість...';
-    timeStatus.style.color = '#888'; // Сірий колір для статусу
-    msg.textContent = ''; // Очищаємо загальне повідомлення форми
-
-    try {
-        // 1. Формуємо URL для GET-запиту з датою
-        const url = `${scriptURL}?date=${selectedDate}`;
-        console.log("Запит на URL:", url);
-
-        // 2. Робимо запит до Apps Script для отримання зайнятих часів
-        const response = await fetch(url);
-
-        // 3. Обробляємо відповідь
-        if (!response.ok) {
-            // Спробуємо отримати деталі помилки з JSON відповіді сервера
-            let errorDetails = `HTTP статус ${response.status}`;
-            try {
-                const errorData = await response.json();
-                if (errorData && errorData.error) {
-                    errorDetails = errorData.error;
+                // Якщо дата вибрана зараз (сьогодні), визначаємо нинішній час у хвилинах
+                let currentMinutes = 0;
+                if (dateInput === todayStr) {
+                    const now = new Date();
+                    currentMinutes = now.getHours() * 60 + now.getMinutes();
                 }
-            } catch (e) { /* Не вдалося розпарсити JSON помилки */ }
-            throw new Error(`Помилка отримання даних: ${errorDetails}`);
-        }
 
-        const bookedTimes = await response.json(); // Очікуємо масив рядків ["HH:MM", "HH:MM", ...] або об'єкт з помилкою
+                // Створюємо опції для кожного слота
+                allTimes.forEach(time => {
+                    const option = document.createElement('option');
+                    option.value = time;
+                    option.textContent = time;
 
-        // Перевіряємо, чи відповідь є масивом (успіх) чи об'єктом (можливо, помилка з doGet)
-        if (!Array.isArray(bookedTimes)) {
-            if (bookedTimes && bookedTimes.error) {
-                 throw new Error(`Помилка сервера: ${bookedTimes.error}`);
-            } else {
-                 throw new Error("Сервер повернув неочікувану відповідь.");
-            }
-        }
+                    const [slotHours, slotMinutes] = time.split(':').map(Number);
+                    const timeInMinutes = slotHours * 60 + slotMinutes;
 
-        console.log(`Отримано зайняті слоти для ${selectedDate}:`, bookedTimes);
+                    // Перевірка: чи вже заброньований для цієї дати
+                    const isBooked = bookedTimes.some(bookedTime => {
+                        const [bookedHours, bookedMinutes] = bookedTime.split(':').map(Number);
+                        const bookedTimeInMinutes = bookedHours * 60 + bookedMinutes;
+                        // Якщо різниця менша за 90 хвилин, вважаємо слот заброньованим
+                        return Math.abs(timeInMinutes - bookedTimeInMinutes) < 90;
+                    });
 
-        // 4. Генеруємо всі можливі слоти часу
-        const allPossibleTimes = generateAllPossibleTimes();
+                    // Якщо обрана дата сьогодні - вимикаємо і ті слоти, що вже минули по часу
+                    const isPast = dateInput === todayStr && timeInMinutes < currentMinutes;
 
-        // 5. Визначаємо доступні слоти (всі можливі мінус зайняті)
-        const availableTimes = allPossibleTimes.filter(time => !bookedTimes.includes(time));
-        console.log("Доступні слоти:", availableTimes);
+                    // Якщо слот заброньований або вже в минулому, робимо його неактивним
+                    option.disabled = isBooked || isPast;
 
-        // 6. Оновлюємо випадаючий список <select>
-        timeSelect.innerHTML = ''; // Очищаємо старі опції
-
-        if (availableTimes.length > 0) {
-            // Додаємо опцію за замовчуванням
-            timeSelect.innerHTML += '<option value="" disabled selected>Оберіть вільний час</option>';
-            // Додаємо доступні слоти
-            availableTimes.forEach(time => {
-                timeSelect.innerHTML += `<option value="${time}">${time}</option>`;
+                    timeSelect.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Помилка завантаження слотів:', error);
+                const option = document.createElement('option');
+                option.textContent = 'Не вдалося завантажити слоти';
+                timeSelect.appendChild(option);
             });
-            timeSelect.disabled = false; // Розблоковуємо список
-            timeStatus.textContent = ''; // Прибираємо статус завантаження
-        } else {
-            // Якщо вільних слотів немає
-            timeSelect.innerHTML = '<option value="" disabled selected>На цю дату вільних годин немає</option>';
-            timeStatus.textContent = 'Немає вільних годин';
-            timeStatus.style.color = '#cc0000'; // Червоний колір
-            timeSelect.disabled = true; // Залишаємо заблокованим
-        }
-
-    } catch (error) {
-        console.error('Помилка при оновленні доступного часу:', error);
-        // Показуємо помилку користувачеві
-        timeSelect.innerHTML = '<option value="" disabled selected>Помилка завантаження</option>';
-        timeStatus.textContent = `Помилка: ${error.message}`;
-        timeStatus.style.color = '#cc0000'; // Червоний колір
-        timeSelect.disabled = true;
+    } else {
+        const option = document.createElement('option');
+        option.textContent = 'Спочатку оберіть дату';
+        timeSelect.appendChild(option);
     }
 }
 
-// ===============================================================
-// ОБРОБНИКИ ПОДІЙ
-// ===============================================================
 
-// Обробник зміни дати
-dateInput.addEventListener('change', (event) => {
-    const selectedDate = event.target.value;
-    if (selectedDate) {
-        updateAvailableTimes(selectedDate);
-    } else {
-        // Якщо дату очистили
-        timeSelect.disabled = true;
-        timeSelect.innerHTML = '<option value="" disabled selected>Спочатку оберіть дату</option>';
-        timeStatus.textContent = '';
-        msg.textContent = '';
-    }
-});
 
-// Обробник відправки форми
-form.addEventListener('submit', e => {
-    e.preventDefault(); // Запобігаємо стандартній відправці
 
-    // Перевіряємо, чи обрано час (додаткова перевірка, хоча select required)
-    if (!timeSelect.value) {
-        msg.textContent = 'Будь ласка, оберіть доступний час візиту.';
-        msg.style.color = 'red';
-        // Встановлюємо фокус на вибір часу, якщо можливо
-        timeSelect.focus();
-        return;
-    }
 
-    // Показуємо статус відправки
-    msg.textContent = 'Відправка даних...';
-    msg.style.color = 'orange'; // Помаранчевий колір для статусу
-    const submitButton = form.querySelector('button[type="submit"]');
-    if (submitButton) submitButton.disabled = true; // Блокуємо кнопку під час відправки
 
-    fetch(scriptURL, { method: 'POST', body: new FormData(form)})
-        .then(response => response.json()) // Очікуємо JSON відповідь від doPost
+
+
+
+  
+
+function bookAppointment() {  
+    const service = document.getElementById('service').value;  
+    const date = document.getElementById('date').value;  
+    const time = document.getElementById('time').value;  
+    const name = document.getElementById('name').value.trim();  
+    const phone = document.getElementById('phone').value.trim();  
+
+    if (!name || !phone || !date || !time) {  
+        alert('Будь ласка, заповніть усі поля!');  
+        return;  
+    }  
+
+    const serviceNames = {  
+        classic: 'Класичний манікюр',  
+        gel: 'Гель-лак',  
+        design: 'Манікюр із дизайном'  
+    };  
+
+    const data = {  
+        service: serviceNames[service] || service,  
+        date,  
+        time,  
+        name,  
+        phone  
+    };  
+
+    // Відправка даних на сервер (Google Apps Script endpoint)  
+    fetch('https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec', {  
+        method: 'POST',  
+        body: JSON.stringify(data)  
+    })  
+    .then(response => response.text())  
+    .then(result => {  
+        document.getElementById('confirmation').textContent =  
+          `Ви записані на ${data.service} до Оксани Черній на ${date} о ${time}. Дякуємо, ${name}!`;  
+        document.getElementById('confirmation').style.display = 'block';  
+        updateTimeSlots(); // Оновлюємо слоти після запису  
+    })  
+    .catch(error => {  
+        alert('Помилка запису: ' + error);  
+        console.error('Помилка запису:', error);  
+    });  
+
+    // Очищення полів для імені та телефону після запису  
+    document.getElementById('name').value = '';  
+    document.getElementById('phone').value = '';  
+}  
+
+function loginAdmin() {  
+    const passwordInput = document.getElementById('admin-password');  
+    const password = passwordInput.value;  
+    // Перевірка правильності пароля для адміна (змініть за потребою)  
+    if (password === 'admin123') {  
+        document.querySelector('.admin-login').style.display = 'none';  
+        document.querySelector('.admin-panel').style.display = 'block';  
+        // Скидання повідомлення про помилку та поля пароля  
+        document.getElementById('admin-error').style.display = 'none';  
+        passwordInput.value = '';  
+        showAppointments();  
+    } else {  
+        document.getElementById('admin-error').style.display = 'block';  
+    }  
+}  
+
+function logoutAdmin() {  
+    document.querySelector('.admin-panel').style.display = 'none';  
+    document.querySelector('.admin-login').style.display = 'block';  
+    document.getElementById('admin-password').value = '';  
+    document.getElementById('admin-error').style.display = 'none';  
+}  
+
+function showAppointments() {
+    fetch('https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec')
+        .then(response => response.json())
         .then(data => {
-            console.log('Відповідь сервера (doPost):', data);
-            if (data.result === 'Success') {
-                msg.textContent = data.message || 'Дякуємо! Ваш запис успішно відправлено.';
-                msg.style.color = 'green'; // Зелений колір успіху
-                form.reset(); // Очищаємо форму
-                // Скидаємо список часу до початкового стану
-                timeSelect.disabled = true;
-                timeSelect.innerHTML = '<option value="" disabled selected>Спочатку оберіть дату</option>';
-                timeStatus.textContent = '';
-            } else {
-                // Якщо doPost повернув помилку
-                msg.textContent = 'Помилка запису: ' + (data.message || 'Не вдалося відправити дані.');
-                msg.style.color = 'red'; // Червоний колір помилки
-            }
+            const container = document.getElementById('appointments-list');
+            container.innerHTML = ''; // Очищення контейнера
+
+            // Створення таблиці
+            const table = document.createElement('table');
+            table.classList.add('appointments-table');
+
+            // Заголовок таблиці
+            const headers = ['№', 'Дата', 'Час', 'Послуга', 'Ім’я', 'Телефон', 'Дії'];
+            const thead = document.createElement('thead');
+            const headerRow = document.createElement('tr');
+            headers.forEach(headerText => {
+                const th = document.createElement('th');
+                th.textContent = headerText;
+                headerRow.appendChild(th);
+            });
+            thead.appendChild(headerRow);
+            table.appendChild(thead);
+
+            // Тіло таблиці
+            const tbody = document.createElement('tbody');
+            data.forEach((row, index) => {
+                const tr = document.createElement('tr');
+
+                // Стовпець з номером запису
+                const tdIndex = document.createElement('td');
+                tdIndex.textContent = index + 1;
+                tr.appendChild(tdIndex);
+
+                // Інші дані
+                ['Дата', 'Час', 'Послуга', 'Ім’я', 'Телефон'].forEach((field, fieldIndex) => {
+                    const td = document.createElement('td');
+                    td.textContent = row[fieldIndex];
+                    td.setAttribute('contenteditable', false); // Для редагування пізніше
+                    td.classList.add(`field-${fieldIndex}`); // Додаємо клас для зручності
+                    tr.appendChild(td);
+                });
+
+                // Стовпець дій
+                const tdActions = document.createElement('td');
+                const editButton = document.createElement('button');
+                editButton.textContent = 'Редагувати';
+                editButton.addEventListener('click', () => enableEditing(tr, row)); // Додаємо подію
+                tdActions.appendChild(editButton);
+                tr.appendChild(tdActions);
+
+                tbody.appendChild(tr);
+            });
+            table.appendChild(tbody);
+            container.appendChild(table);
         })
         .catch(error => {
-            console.error('Помилка fetch при відправці форми!', error);
-            msg.textContent = 'Помилка мережі або сервера при відправці! Спробуйте пізніше.';
-            msg.style.color = 'red';
-        })
-        .finally(() => {
-             // Розблоковуємо кнопку відправки незалежно від результату
-            if (submitButton) submitButton.disabled = false;
+            console.error('Помилка завантаження записів:', error);
         });
-});
-
-// Опціонально: Встановлення мінімальної дати для dateInput на сьогодні
-const today = new Date().toISOString().split('T')[0];
-dateInput.setAttribute('min', today);
-
-// Початкове скидання поля часу, якщо сторінка перезавантажилась зі старими значеннями
-timeSelect.disabled = true;
-timeSelect.innerHTML = '<option value="" disabled selected>Спочатку оберіть дату</option>';
-timeStatus.textContent = '';
-// Якщо дата вже вибрана при завантаженні (наприклад, браузер відновив), завантажуємо час
-if (dateInput.value) {
-   updateAvailableTimes(dateInput.value);
 }
+function enableEditing(row, originalData) {
+    const fields = row.querySelectorAll('td:not(:last-child)'); // Всі комірки, окрім дій
+    const editButton = row.querySelector('button'); // Кнопка "Редагувати"
+
+    fields.forEach(field => {
+        const isEditable = field.getAttribute('contenteditable') === 'true';
+        field.setAttribute('contenteditable', !isEditable);
+        field.style.backgroundColor = isEditable ? '' : '#f9f9f9'; // Виділення фону при редагуванні
+    });
+
+    if (editButton.textContent === 'Редагувати') {
+        editButton.textContent = 'Зберегти';
+        editButton.addEventListener('click', () => saveChanges(row, originalData)); // Додаємо подію збереження
+    } else {
+        editButton.textContent = 'Редагувати';
+    }
+}
+function saveChanges(row, originalData) {
+    const updatedData = [];
+    const fields = row.querySelectorAll('td:not(:last-child)');
+
+    fields.forEach((field, index) => {
+        updatedData.push(field.textContent);
+    });
+
+    // Відправлення даних у Google Apps Script
+    fetch('https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec', {
+        method: 'POST',
+        body: JSON.stringify({
+            original: originalData, // Передаємо оригінальні дані для пошуку
+            updated: updatedData // Передаємо оновлені дані
+        }),
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(result => {
+        console.log('Успішно оновлено:', result);
+        alert('Запис успішно оновлено!');
+    })
+    .catch(error => {
+        console.error('Помилка оновлення запису:', error);
+        alert('Не вдалося оновити запис.');
+    });
+}
+
+
+
+// Відкриваємо форму входу для адміна при кліку на заголовок (h1)  
+document.querySelector('h1').addEventListener('click', () => {  
+    document.querySelector('.admin-login').style.display = 'block';  
+});  
