@@ -2,61 +2,94 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Запис до Оксани Черній</title>
-    <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display&family=Roboto:wght@300&display=swap" rel="stylesheet">
+    <title>Онлайн запис</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <img src="https://via.placeholder.com/150" alt="Оксана Черній" class="profile-pic">
-            <h1>Оксана Черній</h1>
-            <p class="slogan">Ваші нігті — моя турбота! Досконалий манікюр із любов’ю та стилем.</p>
+
+    <header class="header">
+        <div class="container">
+            <div class="header-wrap">
+                <a href="#">
+                    <img src="img/logo.svg" alt="Логотип">
+                </a>
+                <nav class="nav">
+                    <ul class="nav__list">
+                        <li class="nav__item"><a href="#">Головна</a></li>
+                        <li class="nav__item"><a href="#">Послуги</a></li>
+                        <li class="nav__item"><a href="#">Контакти</a></li>
+                        <li class="nav__item"><a href="#">Про нас</a></li>
+                    </ul>
+                </nav>
+            </div>
         </div>
-        
-        <div class="form-section">
-            <label for="service">Оберіть послугу:</label>
-            <select id="service">
-                <option value="classic">Класичний манікюр - 200 грн</option>
-                <option value="gel">Гель-лак - 350 грн</option>
-                <option value="design">Манікюр із дизайном - 400 грн</option>
-            </select>
+    </header>
 
-            <label for="date">Оберіть дату:</label>
-            <input type="date" id="date" min="2025-02-25" onchange="updateTimeSlots()">
+    <main class="main">
+        <section class="section">
+            <div class="container">
+                <form class="form" name="submit-to-google-sheet">
+                    <h2 class="form__title">Онлайн запис</h2>
+                    <p class="form__subtitle">Заповніть форму та адміністратор зв’яжеться з вами напротязі 15 хвилин</p>
 
-            <label for="time">Оберіть час:</label>
-            <select id="time">
-                <option value="">Спочатку оберіть дату</option>
-            </select>
+                    {/* Блок Дати та Часу */}
+                    <div class="form__block">
+                        <div class="form__item">
+                            <label class="form__label" for="date-visit">Бажана дата візиту</label>
+                            <input class="form__input" type="date" id="date-visit" name="Дата" required>
+                        </div>
+                        <div class="form__item">
+                            <label class="form__label" for="time-select">Бажаний час візиту</label>
+                            {/* ЗАМІНЕНО input type="time" НА select */}
+                            <select class="form__input" id="time-select" name="Час" required disabled>
+                                <option value="" disabled selected>Спочатку оберіть дату</option>
+                            </select>
+                            {/* Додаємо блок для відображення статусу завантаження/помилок часу */}
+                            <div id="time-status" style="font-size: 0.8em; color: #888; margin-top: 5px; min-height: 1.2em;"></div>
+                        </div>
+                    </div>
 
-            <label for="name">Ваше ім’я:</label>
-            <input type="text" id="name" placeholder="Введіть ім’я">
+                    {/* Блок Послуги */}
+                    <div class="form__block">
+                        <div class="form__item">
+                            <label class="form__label" for="service-selection">Оберіть послугу</label>
+                            <select class="form__input form__input--height" id="service-selection" name="Сервіс" required>
+                                <option value="" disabled selected>Оберіть послугу зі списку</option>
+                                <option value="Послуга 1">Послуга 1</option>
+                                <option value="Послуга 2">Послуга 2</option>
+                                <option value="Послуга 3">Послуга 3</option>
+                                <option value="Послуга 4">Послуга 4</option>
+                                <option value="Послуга 5">Послуга 5</option>
+                            </select>
+                        </div>
+                    </div>
 
-            <label for="phone">Ваш телефон:</label>
-            <input type="tel" id="phone" placeholder="Введіть номер телефону">
+                    {/* Блок Ім'я та Телефону */}
+                    <div class="form__block">
+                        <div class="form__item">
+                            <label class="form__label" for="user-name">Введіть ваше ім'я</label>
+                            <input class="form__input" placeholder="Ім’я" type="text" id="user-name" name="Ім_я" required>
+                        </div>
+                        <div class="form__item">
+                            <label class="form__label" for="user-tel">Введіть ваш номер телефону</label>
+                            <input class="form__input" placeholder="+380 XX XXX XX XX" type="tel" id="user-tel" name="телефон" required pattern="\+380[0-9]{9}" title="Введіть номер у форматі +380XXXXXXXXX">
+                        </div>
+                    </div>
 
-            <button onclick="bookAppointment()">Записатися</button>
-        </div>
+                    {/* Кнопка та Повідомлення */}
+                    <button class="button button--center" type="submit">Записатись</button>
+                    <p id="msg" style="text-align: center; margin-top: 15px; font-weight: bold;"></p>
 
-        <p id="confirmation" style="display: none;"></p>
-    </div>
+                </form>
+            </div>
+        </section>
+    </main>
 
-    <div class="admin-login" style="display: none;">
-        <h2>Вхід для адміна</h2>
-        <input type="password" id="admin-password" placeholder="Введіть пароль">
-        <button onclick="loginAdmin()">Увійти</button>
-        <p id="admin-error" style="color: red; display: none;">Невірний пароль!</p>
-    </div>
-
-    <div class="admin-panel" style="display: none;">
-        <h2>Панель адміністратора</h2>
-        <button onclick="logoutAdmin()">Вийти</button>
-        <h3>Записи</h3>
-        <ul id="appointments-list"></ul>
-    </div>
-
-    <script src="script.js"></script>
+    <script src="js/script.js"></script>
 </body>
 </html>
