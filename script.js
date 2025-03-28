@@ -11,112 +11,109 @@ window.onload = function() {
 };  
 
 function updateTimeSlots() {
-    const dateValue = document.getElementById('date').value;
-    const timeSelect = document.getElementById('time');
-    timeSelect.innerHTML = ''; // Очищення списку часових слотів
+    const dateInputElem = document.getElementById('date');
+    const timeSelectElem = document.getElementById('time');
+    timeSelectElem.innerHTML = ''; // Очищення списку часових слотів
 
-    // Допоміжна функція для форматування дати у вигляді YYYY-MM-DD
-    function formatDateFromObj(dateObj) {
+    const selectedDate = dateInputElem.value;
+    if (!selectedDate) {
+        const option = document.createElement('option');
+        option.textContent = 'Спочатку оберіть дату';
+        option.disabled = true;
+        timeSelectElem.appendChild(option);
+        return;
+    }
+
+    // Функція для форматування об’єкта Date у рядок "YYYY-MM-DD"
+    function formatDate(dateObj) {
         const year = dateObj.getFullYear();
         const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
         const day = dateObj.getDate().toString().padStart(2, '0');
         return `${year}-${month}-${day}`;
     }
 
-    // Допоміжна функція для форматування часу у вигляді HH:mm
-    function formatTimeFromObj(dateObj) {
-        const hours = dateObj.getHours().toString().padStart(2, '0');
-        const minutes = dateObj.getMinutes().toString().padStart(2, '0');
-        return `${hours}:${minutes}`;
+    // Функція для нормалізації часу – повертає рядок у форматі "HH:mm"
+    function normalizeTime(timeStr) {
+        // Обрізаємо пробіли і беремо лише перші 5 символів (на випадок, якщо приходить "HH:mm:SS")
+        return timeStr.trim().substring(0, 5);
     }
 
-    if (!dateValue) {
-        const option = document.createElement('option');
-        option.textContent = 'Спочатку оберіть дату';
-        timeSelect.appendChild(option);
-        return;
+    // Отримуємо сьогоднішню дату у форматі "YYYY-MM-DD" та поточний час (в хвилинах), якщо обрана дата ─ сьогодні
+    const todayStr = new Date().toISOString().split('T')[0];
+    let currentMinutes = 0;
+    if (selectedDate === todayStr) {
+        const now = new Date();
+        currentMinutes = now.getHours() * 60 + now.getMinutes();
     }
 
-    // Отримуємо сьогоднішню дату (у форматі YYYY-MM-DD)
-    const todayDateObj = new Date();
-    const todayStr = todayDateObj.toISOString().split('T')[0];
-
-    // Формуємо URL для отримання записів за вибраною датою
-    const url = `https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec?date=${dateValue}`;
+    // Формуємо URL для запиту до Google Apps Script із заданою датою
+    const url = `https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec?date=${selectedDate}`;
 
     fetch(url)
         .then(response => response.json())
         .then(data => {
-            console.log("Дані, отримані від API:", data);
-            
-            // Фільтруємо записи, щоб залишити лише ті, що стосуються вибраної дати
-            const filteredData = data.filter(row => {
-                let rowDateStr;
-                if (row[0] instanceof Date) {
-                    rowDateStr = formatDateFromObj(row[0]);
-                } else {
-                    rowDateStr = formatDateFromObj(new Date(row[0]));
-                }
-                return rowDateStr === dateValue;
-            });
-            
-            // Отримуємо заброньовані часи та нормалізуємо їх до формату "HH:mm"
-            const bookedTimes = filteredData.map(row => {
-                let timeStr;
-                if (row[1] instanceof Date) {
-                    timeStr = formatTimeFromObj(row[1]);
-                } else if (typeof row[1] === 'string') {
-                    // Якщо час може містити секунди, беремо лише перші 5 символів
-                    timeStr = row[1].trim().substring(0, 5);
-                } else {
-                    timeStr = row[1];
-                }
-                return timeStr;
-            });
-            console.log("Нормалізовані заброньовані часи:", bookedTimes);
+            console.log('Отримані дані з API:', data);
 
-            // Масив усіх можливих часових слотів
-            const allTimes = [
+            // Фільтруємо записи, залишаючи ті, що відповідають вибраній даті
+            const appointmentsForDate = data.filter(row => {
+                let rowDate = row[0];
+                if (typeof rowDate !== 'string') {
+                    // Якщо це не рядок, перетворюємо його у формат "YYYY-MM-DD"
+                    rowDate = formatDate(new Date(rowDate));
+                }
+                return rowDate === selectedDate;
+            });
+            console.log('Записи для вибраної дати:', appointmentsForDate);
+
+            // Отримуємо масив заброньованих часів, нормалізованих до формату "HH:mm"
+            const bookedTimes = appointmentsForDate.map(row => {
+                let t = row[1];
+                if (typeof t !== 'string') {
+                    // Якщо отримали об'єкт Date
+                    t = new Date(t).toTimeString().substring(0, 5);
+                }
+                return normalizeTime(t);
+            });
+            console.log('Нормалізовані заброньовані часи:', bookedTimes);
+
+            // Усі можливі часові слоти
+            const allSlots = [
                 '08:00', '08:30', '09:00', '09:30', '10:00', '10:30',
                 '11:00', '11:30', '12:00', '12:30', '13:00', '13:30',
                 '14:00', '14:30', '15:00', '15:30', '16:00', '16:30',
                 '17:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00'
             ];
 
-            // Для сьогоднішньої дати визначаємо поточний час (в хвилинах)
-            let currentMinutes = 0;
-            if (dateValue === todayStr) {
-                const now = new Date();
-                currentMinutes = now.getHours() * 60 + now.getMinutes();
-            }
-
-            // Створюємо опції для кожного слота
-            allTimes.forEach(slot => {
+            // Для кожного слота створюємо опцію у селекті
+            allSlots.forEach(slot => {
                 const option = document.createElement('option');
                 option.value = slot;
                 option.textContent = slot;
 
-                // Перевірка – чи цей слот точно зустрічається в заброньованих?
+                // Обчислюємо час слота в хвилинах
+                const [slotHour, slotMinute] = slot.split(':').map(Number);
+                const slotInMinutes = slotHour * 60 + slotMinute;
+                // Якщо вибрана дата – сьогодні, перевіряємо, чи слот уже минув.
+                const isPast = (selectedDate === todayStr && slotInMinutes < currentMinutes);
+                // Перевіряємо, чи цей слот вже заброньований
                 const isBooked = bookedTimes.includes(slot);
 
-                // Якщо вибрана дата – сьогодні, вимикаємо слоти, що вже минули за часом
-                const [slotHours, slotMinutes] = slot.split(':').map(Number);
-                const slotTimeInMinutes = slotHours * 60 + slotMinutes;
-                const isPast = (dateValue === todayStr && slotTimeInMinutes < currentMinutes);
-
-                // Деактивуємо слот, якщо він заброньований або вже минув
-                option.disabled = isBooked || isPast;
-                timeSelect.appendChild(option);
+                if (isPast || isBooked) {
+                    option.disabled = true;
+                }
+                timeSelectElem.appendChild(option);
             });
         })
-        .catch(error => {
-            console.error('Помилка завантаження слотів:', error);
-            timeSelect.innerHTML = '';
+        .catch(err => {
+            console.error('Помилка отримання записів:', err);
+            timeSelectElem.innerHTML = '';
             const option = document.createElement('option');
             option.textContent = 'Не вдалося завантажити слоти';
-            timeSelect.appendChild(option);
+            option.disabled = true;
+            timeSelectElem.appendChild(option);
         });
 }
+
 
 
 
