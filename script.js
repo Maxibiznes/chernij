@@ -7,7 +7,7 @@ window.onload = function() {
 
     today = yyyy + '-' + mm + '-' + dd;  
     dateInput.setAttribute("min", today);  
-    updateTimeSlots(); // Завантажує часові слоти при старті  
+    updateTimeSlots(); // Завантаження початкових часових слотів  
 };  
 
 function updateTimeSlots() {
@@ -24,14 +24,12 @@ function updateTimeSlots() {
         return;
     }
 
-    // Формуємо URL для запиту до Google Apps Script
     const url = `https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec?date=${selectedDate}`;
 
     fetch(url)
         .then(response => response.json())
         .then(data => {
-            // Отримуємо масив заброньованих часів
-            const bookedTimes = data.map(row => row[1]);
+            const bookedTimes = data.map(row => row[1]); // Отримання заброньованих часів
 
             const allSlots = [
                 '08:00', '08:30', '09:00', '09:30', '10:00', '10:30',
@@ -45,7 +43,7 @@ function updateTimeSlots() {
                 option.value = slot;
                 option.textContent = slot;
 
-                const isBooked = bookedTimes.includes(slot); // Перевірка на заброньованість
+                const isBooked = bookedTimes.includes(slot); // Перевірка заброньованості
 
                 if (isBooked) {
                     option.disabled = true;
@@ -90,17 +88,14 @@ function bookAppointment() {
 
     fetch('https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec', {  
         method: 'POST',  
-        body: JSON.stringify(data),
-        headers: {
-            'Content-Type': 'application/json',
-        }
+        body: JSON.stringify(data)  
     })  
     .then(response => response.text())  
     .then(result => {  
         document.getElementById('confirmation').textContent =  
           `Ви записані на ${data.service} до Оксани Черній на ${date} о ${time}. Дякуємо, ${name}!`;  
         document.getElementById('confirmation').style.display = 'block';  
-        updateTimeSlots(); // Оновлюємо слоти після запису  
+        updateTimeSlots(); // Оновлення часових слотів після запису  
     })  
     .catch(error => {  
         alert('Помилка запису: ' + error);  
