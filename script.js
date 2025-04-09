@@ -7,13 +7,13 @@ window.onload = function() {
 
     today = yyyy + '-' + mm + '-' + dd;  
     dateInput.setAttribute("min", today);  
-    updateTimeSlots(); // Завантажує часові слоти при старті  
+    updateTimeSlots();  
 };  
 
 function updateTimeSlots() {
     const dateInputElem = document.getElementById('date');
     const timeSelectElem = document.getElementById('time');
-    timeSelectElem.innerHTML = ''; // Очищення списку часових слотів
+    timeSelectElem.innerHTML = ''; 
 
     const selectedDate = dateInputElem.value;
     if (!selectedDate) {
@@ -24,20 +24,13 @@ function updateTimeSlots() {
         return;
     }
 
-    const todayStr = new Date().toISOString().split('T')[0];
-    let currentMinutes = 0;
-    if (selectedDate === todayStr) {
-        const now = new Date();
-        currentMinutes = now.getHours() * 60 + now.getMinutes();
-    }
-
     const url = `https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec?date=${selectedDate}`;
 
     fetch(url)
         .then(response => response.json())
         .then(data => {
-            const bookedTimes = data.map(row => row[1]); // Заброньовані часи
-            
+            const bookedTimes = data.map(row => row[1]); 
+
             const allSlots = [
                 '08:00', '08:30', '09:00', '09:30', '10:00', '10:30',
                 '11:00', '11:30', '12:00', '12:30', '13:00', '13:30',
@@ -50,12 +43,9 @@ function updateTimeSlots() {
                 option.value = slot;
                 option.textContent = slot;
 
-                const [slotHour, slotMinute] = slot.split(':').map(Number);
-                const slotInMinutes = slotHour * 60 + slotMinute;
-                const isPast = (selectedDate === todayStr && slotInMinutes < currentMinutes);
                 const isBooked = bookedTimes.includes(slot);
 
-                if (isPast || isBooked) {
+                if (isBooked) {
                     option.disabled = true;
                 }
                 timeSelectElem.appendChild(option);
@@ -98,17 +88,14 @@ function bookAppointment() {
 
     fetch('https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec', {  
         method: 'POST',  
-        body: JSON.stringify(data),
-        headers: {
-            'Content-Type': 'application/json',
-        }
+        body: JSON.stringify(data)  
     })  
     .then(response => response.text())  
     .then(result => {  
         document.getElementById('confirmation').textContent =  
           `Ви записані на ${data.service} до Оксани Черній на ${date} о ${time}. Дякуємо, ${name}!`;  
         document.getElementById('confirmation').style.display = 'block';  
-        updateTimeSlots(); // Оновлюємо слоти після запису  
+        updateTimeSlots();  
     })  
     .catch(error => {  
         alert('Помилка запису: ' + error);  
