@@ -10,6 +10,13 @@ window.onload = function() {
     updateTimeSlots(); // Завантаження початкових слотів  
 };  
 
+// Функція переведення Date-об’єкта в рядок "HH:mm"
+function formatTime(dateObj) {
+    let hours = dateObj.getHours();
+    let minutes = dateObj.getMinutes();
+    return String(hours).padStart(2, '0') + ":" + String(minutes).padStart(2, '0');
+}
+
 function updateTimeSlots() {
     const dateInputElem = document.getElementById('date');
     const timeSelectElem = document.getElementById('time');
@@ -31,32 +38,31 @@ function updateTimeSlots() {
         const day = dateObj.getDate().toString().padStart(2, '0');
         return `${year}-${month}-${day}`;
     }
-  
-    // Модифікована normalizeTime: гарантуємо, що результат має формат "HH:mm"
+    
+    // normalizeTime – гарантуємо формат "HH:mm"
     function normalizeTime(timeStr) {
         let normalized = timeStr.trim().substring(0, 5);
         let parts = normalized.split(':');
         parts[0] = parts[0].padStart(2, '0');
         return parts.join(':');
     }
-
+    
     const todayStr = new Date().toISOString().split('T')[0];
     let currentMinutes = 0;
     if (selectedDate === todayStr) {
-        const now = new Date();
+        let now = new Date();
         currentMinutes = now.getHours() * 60 + now.getMinutes();
     }
 
-    // Додаємо часову мітку для уникнення кешування запиту
+    // Додаємо часову мітку для уникнення кешування
     const url = `https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec?date=${selectedDate}&t=${new Date().getTime()}`;
 
     fetch(url)
         .then(response => response.json())
         .then(data => {
             console.log('Отримані дані з API:', data);
-
-            // Оновлена фільтрація. Якщо дата повертається як ISO-рядок (наприклад, "2025-04-08T00:00:00.000Z"),
-            // беремо лише першу частину до символу "T", щоб отримати "2025-04-08".
+            
+            // Фільтрація записів – якщо дата повертається як ISO-рядок, беремо першу частину
             const appointmentsForDate = data.filter(row => {
                 let rowDate = row[0];
                 if (typeof rowDate === 'string' && rowDate.indexOf('T') > -1) {
@@ -68,11 +74,21 @@ function updateTimeSlots() {
             });
             console.log('Записи для вибраної дати:', appointmentsForDate);
 
-            // Отримуємо масив заброньованих часів, нормалізованих до формату "HH:mm"
+            // Обчислюємо заброньовані часові слоти
             const bookedTimes = appointmentsForDate.map(row => {
                 let t = row[1];
                 if (typeof t !== 'string') {
-                    t = new Date(t).toTimeString().substring(0, 5);
+                    // Якщо t – Date-об’єкт, перетворюємо його через formatTime
+                    if (t instanceof Date) {
+                        t = formatTime(t);
+                    } 
+                    // Якщо t – число (модель Google Sheets може повертати час як число)
+                    else if (typeof t === 'number') {
+                        let totalMinutes = Math.round(t * 24 * 60);
+                        let hours = String(Math.floor(totalMinutes / 60)).padStart(2, '0');
+                        let minutes = String(totalMinutes % 60).padStart(2, '0');
+                        t = `${hours}:${minutes}`;
+                    }
                 }
                 return normalizeTime(t);
             });
@@ -94,7 +110,6 @@ function updateTimeSlots() {
             placeholder.selected = true;
             timeSelectElem.appendChild(placeholder);
 
-            // Перебираємо всі слоти та робимо неактивними ті, що вже заброньовані або минули
             allSlots.forEach(slot => {
                 const [slotHour, slotMinute] = slot.split(':').map(Number);
                 const slotInMinutes = slotHour * 60 + slotMinute;
@@ -291,4 +306,3 @@ function saveChanges(row, originalData) {
 document.querySelector('h1').addEventListener('click', () => {
     document.querySelector('.admin-login').style.display = 'block';
 });
-
