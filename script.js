@@ -2,27 +2,18 @@ window.onload = function() {
     let dateInput = document.getElementById("date");  
     let today = new Date();  
     let dd = String(today.getDate()).padStart(2, '0');  
-    let mm = String(today.getMonth() + 1).padStart(2, '0'); // Січень — 0  
+    let mm = String(today.getMonth() + 1).padStart(2, '0'); // Січень - 0!  
     let yyyy = today.getFullYear();  
-    let todayStr = `${yyyy}-${mm}-${dd}`;  
-    dateInput.setAttribute("min", todayStr);  
-    updateTimeSlots(); // Завантаження початкових часових слотів  
-};  
 
-// Допоміжна функція для нормалізації часу у формат HH:mm  
-function normalizeTimeProper(timeStr) {
-    timeStr = timeStr.trim();
-    const parts = timeStr.split(':');
-    if (parts.length < 2) return timeStr;  
-    let hour = parts[0].padStart(2, '0');  
-    let minute = parts[1].padStart(2, '0');  
-    return `${hour}:${minute}`;  
-}
+    today = yyyy + '-' + mm + '-' + dd;  
+    dateInput.setAttribute("min", today);  
+    updateTimeSlots(); // Завантаження початкових слотів  
+};  
 
 function updateTimeSlots() {
     const dateInputElem = document.getElementById('date');
     const timeSelectElem = document.getElementById('time');
-    timeSelectElem.innerHTML = ''; // Очищення списку часових слотів
+    timeSelectElem.innerHTML = ''; // Очистка списку часових слотів
 
     const selectedDate = dateInputElem.value;
     if (!selectedDate) {
@@ -33,7 +24,19 @@ function updateTimeSlots() {
         return;
     }
 
-    // Отримуємо сьогоднішню дату у форматі YYYY-MM-DD та поточний час (у хвилинах), якщо обрана дата — сьогодні
+    // Функція для форматування об’єкта Date у рядок "YYYY-MM-DD"
+    function formatDate(dateObj) {
+        const year = dateObj.getFullYear();
+        const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
+        const day = dateObj.getDate().toString().padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    // Функція для нормалізації часу – повертає рядок у форматі "HH:mm"
+    function normalizeTime(timeStr) {
+        return timeStr.trim().substring(0, 5);
+    }
+
     const todayStr = new Date().toISOString().split('T')[0];
     let currentMinutes = 0;
     if (selectedDate === todayStr) {
@@ -41,19 +44,15 @@ function updateTimeSlots() {
         currentMinutes = now.getHours() * 60 + now.getMinutes();
     }
 
-    // Формуємо URL для GET-запиту до Google Apps Script із заданою датою
+    // Формуємо URL запиту до Google Apps Script із заданою датою
     const url = `https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec?date=${selectedDate}`;
 
     fetch(url)
         .then(response => response.json())
         .then(data => {
-            // Фільтруємо записи, залишаючи ті, що відповідають обраній даті  
-            function formatDate(dateObj) {
-                const year = dateObj.getFullYear();
-                const month = String(dateObj.getMonth() + 1).padStart(2, '0');
-                const day = String(dateObj.getDate()).padStart(2, '0');
-                return `${year}-${month}-${day}`;
-            }
+            console.log('Отримані дані з API:', data);
+
+            // Фільтруємо записи, що відповідають вибраній даті
             const appointmentsForDate = data.filter(row => {
                 let rowDate = row[0];
                 if (typeof rowDate !== 'string') {
@@ -61,18 +60,17 @@ function updateTimeSlots() {
                 }
                 return rowDate === selectedDate;
             });
+            console.log('Записи для вибраної дати:', appointmentsForDate);
 
-            // Отримуємо масив заброньованих часів, нормалізованих до формату HH:mm  
             const bookedTimes = appointmentsForDate.map(row => {
                 let t = row[1];
                 if (typeof t !== 'string') {
                     t = new Date(t).toTimeString().substring(0, 5);
                 }
-                return normalizeTimeProper(t);
+                return normalizeTime(t);
             });
-            console.log('Booked times (normalized):', bookedTimes);
+            console.log('Нормалізовані заброньовані часи:', bookedTimes);
 
-            // Визначаємо усі можливі часові слоти  
             const allSlots = [
                 '08:00', '08:30', '09:00', '09:30', '10:00', '10:30',
                 '11:00', '11:30', '12:00', '12:30', '13:00', '13:30',
@@ -80,25 +78,37 @@ function updateTimeSlots() {
                 '17:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00'
             ];
 
-            // Створюємо опції — для кожного слота перевіряємо, чи він уже заброньований або лежить у минулому  
-            allSlots.forEach(slot => {
-                const option = document.createElement('option');
-                option.value = slot;
-                option.textContent = slot;
-
-                // Обчислюємо час слота в хвилинах  
+            // Фільтруємо слоти: виключаємо ті, що вже пройшли (якщо сьогодні) або заброньовані
+            const availableSlots = allSlots.filter(slot => {
                 const [slotHour, slotMinute] = slot.split(':').map(Number);
                 const slotInMinutes = slotHour * 60 + slotMinute;
-                // Якщо обрана дата — сьогодні, перевіряємо, чи слот уже минув  
                 const isPast = (selectedDate === todayStr && slotInMinutes < currentMinutes);
-                // Перевіряємо, чи цей слот вже заброньований  
                 const isBooked = bookedTimes.includes(slot);
-
-                if (isPast || isBooked) {
-                    option.disabled = true;
-                }
-                timeSelectElem.appendChild(option);
+                return !isPast && !isBooked;
             });
+
+            timeSelectElem.innerHTML = '';
+            if (availableSlots.length === 0) {
+                const option = document.createElement('option');
+                option.textContent = 'Немає доступних слотів';
+                option.disabled = true;
+                timeSelectElem.appendChild(option);
+            } else {
+                // Додаємо початкову опцію
+                const placeholder = document.createElement('option');
+                placeholder.value = '';
+                placeholder.textContent = 'Оберіть час';
+                placeholder.disabled = true;
+                placeholder.selected = true;
+                timeSelectElem.appendChild(placeholder);
+
+                availableSlots.forEach(slot => {
+                    const option = document.createElement('option');
+                    option.value = slot;
+                    option.textContent = slot;
+                    timeSelectElem.appendChild(option);
+                });
+            }
         })
         .catch(err => {
             console.error('Помилка отримання записів:', err);
@@ -136,20 +146,17 @@ function bookAppointment() {
         phone  
     };  
 
-    // Відправка даних на сервер (Google Apps Script endpoint)  
+    // Відправка даних на сервер (Google Apps Script endpoint)
     fetch('https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec', {  
         method: 'POST',  
-        body: JSON.stringify(data),  
-        headers: {
-            'Content-Type': 'application/json'
-        }
+        body: JSON.stringify(data)  
     })  
     .then(response => response.text())  
     .then(result => {  
         document.getElementById('confirmation').textContent =  
           `Ви записані на ${data.service} до Оксани Черній на ${date} о ${time}. Дякуємо, ${name}!`;  
         document.getElementById('confirmation').style.display = 'block';  
-        updateTimeSlots(); // Оновлення часових слотів після запису  
+        updateTimeSlots(); // Оновлюємо слоти після запису  
     })  
     .catch(error => {  
         alert('Помилка запису: ' + error);  
@@ -159,7 +166,7 @@ function bookAppointment() {
     // Очищення полів для імені та телефону після запису  
     document.getElementById('name').value = '';  
     document.getElementById('phone').value = '';  
-}
+}  
 
 function loginAdmin() {  
     const passwordInput = document.getElementById('admin-password');  
@@ -173,14 +180,14 @@ function loginAdmin() {
     } else {  
         document.getElementById('admin-error').style.display = 'block';  
     }  
-}
+}  
 
 function logoutAdmin() {  
     document.querySelector('.admin-panel').style.display = 'none';  
     document.querySelector('.admin-login').style.display = 'block';  
     document.getElementById('admin-password').value = '';  
     document.getElementById('admin-error').style.display = 'none';  
-}
+}  
 
 function showAppointments() {
     fetch('https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec')
@@ -188,6 +195,7 @@ function showAppointments() {
         .then(data => {
             const container = document.getElementById('appointments-list');
             container.innerHTML = '';
+
             const table = document.createElement('table');
             table.classList.add('appointments-table');
             const headers = ['№', 'Дата', 'Час', 'Послуга', 'Ім’я', 'Телефон', 'Дії'];
@@ -200,6 +208,7 @@ function showAppointments() {
             });
             thead.appendChild(headerRow);
             table.appendChild(thead);
+
             const tbody = document.createElement('tbody');
             data.forEach((row, index) => {
                 const tr = document.createElement('tr');
@@ -254,6 +263,7 @@ function enableEditing(row, originalData) {
 function saveChanges(row, originalData) {
     const updatedData = [];
     const fields = row.querySelectorAll('td:not(:last-child)');
+
     fields.forEach((field, index) => {
         updatedData.push(field.textContent);
     });
@@ -265,7 +275,7 @@ function saveChanges(row, originalData) {
             updated: updatedData
         }),
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
         }
     })
     .then(response => response.json())
@@ -279,6 +289,6 @@ function saveChanges(row, originalData) {
     });
 }
 
-document.querySelector('h1').addEventListener('click', () => {  
-    document.querySelector('.admin-login').style.display = 'block';  
+document.querySelector('h1').addEventListener('click', () => {
+    document.querySelector('.admin-login').style.display = 'block';
 });
