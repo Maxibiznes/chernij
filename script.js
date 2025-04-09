@@ -24,16 +24,15 @@ function updateTimeSlots() {
         return;
     }
 
-    // Функція для форматування Date у рядок "YYYY-MM-DD"
+    // Функція для форматування Date в рядок "YYYY-MM-DD"
     function formatDate(dateObj) {
         const year = dateObj.getFullYear();
         const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
         const day = dateObj.getDate().toString().padStart(2, '0');
         return `${year}-${month}-${day}`;
     }
-
-    // Модифікована функція для нормалізації часу,
-    // щоб завжди повертати формат "HH:mm" (наприклад, "08:00" замість "8:00")
+  
+    // Модифікована normalizeTime: гарантуємо, що результат має формат "HH:mm"
     function normalizeTime(timeStr) {
         let normalized = timeStr.trim().substring(0, 5);
         let parts = normalized.split(':');
@@ -56,17 +55,20 @@ function updateTimeSlots() {
         .then(data => {
             console.log('Отримані дані з API:', data);
 
-            // Фільтруємо записи для вибраної дати
+            // Оновлена фільтрація. Якщо дата повертається як ISO-рядок (наприклад, "2025-04-08T00:00:00.000Z"),
+            // беремо лише першу частину до символу "T", щоб отримати "2025-04-08".
             const appointmentsForDate = data.filter(row => {
                 let rowDate = row[0];
-                if (typeof rowDate !== 'string') {
+                if (typeof rowDate === 'string' && rowDate.indexOf('T') > -1) {
+                    rowDate = rowDate.split('T')[0];
+                } else if (typeof rowDate !== 'string') {
                     rowDate = formatDate(new Date(rowDate));
                 }
                 return rowDate === selectedDate;
             });
             console.log('Записи для вибраної дати:', appointmentsForDate);
 
-            // Отримуємо масив заброньованих часів у форматі "HH:mm"
+            // Отримуємо масив заброньованих часів, нормалізованих до формату "HH:mm"
             const bookedTimes = appointmentsForDate.map(row => {
                 let t = row[1];
                 if (typeof t !== 'string') {
@@ -76,7 +78,6 @@ function updateTimeSlots() {
             });
             console.log('Нормалізовані заброньовані часи:', bookedTimes);
 
-            // Всі можливі часові слоти
             const allSlots = [
                 '08:00', '08:30', '09:00', '09:30', '10:00', '10:30',
                 '11:00', '11:30', '12:00', '12:30', '13:00', '13:30',
@@ -93,7 +94,7 @@ function updateTimeSlots() {
             placeholder.selected = true;
             timeSelectElem.appendChild(placeholder);
 
-            // Перебираємо всі слоти та робимо недоступними ті, що вже заброньовані або минули
+            // Перебираємо всі слоти та робимо неактивними ті, що вже заброньовані або минули
             allSlots.forEach(slot => {
                 const [slotHour, slotMinute] = slot.split(':').map(Number);
                 const slotInMinutes = slotHour * 60 + slotMinute;
@@ -290,3 +291,4 @@ function saveChanges(row, originalData) {
 document.querySelector('h1').addEventListener('click', () => {
     document.querySelector('.admin-login').style.display = 'block';
 });
+
