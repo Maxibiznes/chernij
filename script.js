@@ -69,3 +69,52 @@ function updateTimeSlots() {
             timeSelectElem.appendChild(option);
         });
 }
+
+function bookAppointment() {  
+    const service = document.getElementById('service').value;  
+    const date = document.getElementById('date').value;  
+    const time = document.getElementById('time').value;  
+    const name = document.getElementById('name').value.trim();  
+    const phone = document.getElementById('phone').value.trim();  
+
+    if (!name || !phone || !date || !time) {  
+        alert('Будь ласка, заповніть усі поля!');  
+        return;  
+    }  
+
+    const serviceNames = {  
+        classic: 'Класичний манікюр',  
+        gel: 'Гель-лак',  
+        design: 'Манікюр із дизайном'  
+    };  
+
+    const data = {  
+        service: serviceNames[service] || service,  
+        date,  
+        time,  
+        name,  
+        phone  
+    };  
+
+    fetch('https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec', {  
+        method: 'POST',  
+        body: JSON.stringify(data),
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })  
+    .then(response => response.text())  
+    .then(result => {  
+        document.getElementById('confirmation').textContent =  
+          `Ви записані на ${data.service} до Оксани Черній на ${date} о ${time}. Дякуємо, ${name}!`;  
+        document.getElementById('confirmation').style.display = 'block';  
+        updateTimeSlots(); // Оновлюємо слоти після запису  
+    })  
+    .catch(error => {  
+        alert('Помилка запису: ' + error);  
+        console.error('Помилка запису:', error);  
+    });  
+
+    document.getElementById('name').value = '';  
+    document.getElementById('phone').value = '';  
+}
