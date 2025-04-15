@@ -40,7 +40,7 @@ function updateTimeSlots() {
     .then(response => response.json())
     .then(data => {
       console.log("Дані з GET:", data);
-      // З отриманих записів беремо час із другого стовпця (вже відформатованого як "HH:mm")
+      // З отриманих записів беремо час із другого стовпця (формат "HH:mm")
       const bookedTimes = data.map(row => row[1].trim());
       console.log("BookedTimes:", bookedTimes);
       
@@ -63,7 +63,7 @@ function updateTimeSlots() {
         return (!isPast && !bookedSet.has(slot));
       });
       
-      // Оновлюємо <select>: якщо є доступні слоти – додаємо їх, інакше показуємо повідомлення
+      // Оновлюємо <select>: якщо є доступні слоти – додаємо їх, інакше – повідомлення
       timeSelectElem.innerHTML = "";
       if (availableSlots.length === 0) {
         const option = document.createElement("option");
@@ -108,7 +108,7 @@ function bookAppointment() {
     return;
   }
   
-  // Не конвертуємо дату і час - відправляємо їх як є. Ми очікуємо, що користувач вводить наприклад "2025-04-13" та "15:45".
+  // Відправляємо значення як є (очікуємо, що користувач вводить у форматі "YYYY-MM-DD" і "HH:mm")
   const serviceNames = {
     classic: "Класичний манікюр",
     gel: "Гель-лак",
@@ -117,8 +117,8 @@ function bookAppointment() {
   
   const data = {
     service: serviceNames[service] || service,
-    date: dateInput, // Відсилаємо як рядок "YYYY-MM-DD"
-    time: timeInput, // Відсилаємо як рядок "HH:mm"
+    date: dateInput, // Значення залишається рядком, наприклад "2025-04-13"
+    time: timeInput, // Значення залишається рядком, наприклад "15:45"
     name: name,
     phone: phone
   };
