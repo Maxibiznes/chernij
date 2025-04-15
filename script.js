@@ -1,20 +1,16 @@
-// При завантаженні сторінки встановлюємо мінімальну дату і завантажуємо початкові слоти
-window.onload = function() {
+// При завантаженні сторінки встановлюємо мінімальну дату і завантажуємо слоти
+window.onload = () => {
   const dateInput = document.getElementById("date");
-  const today = new Date();
-  const dd = String(today.getDate()).padStart(2, '0');
-  const mm = String(today.getMonth() + 1).padStart(2, '0');
-  const yyyy = today.getFullYear();
-  const todayStr = yyyy + '-' + mm + '-' + dd;
+  const todayStr = new Date().toISOString().split("T")[0];
   dateInput.setAttribute("min", todayStr);
   updateTimeSlots();
 };
 
-// Функція для оновлення списку доступних часових слотів
-function updateTimeSlots() {
+// Оновлення списку доступних часових слотів
+const updateTimeSlots = () => {
   const dateInputElem = document.getElementById("date");
   const timeSelectElem = document.getElementById("time");
-  timeSelectElem.innerHTML = ""; // Очищення списку слотів
+  timeSelectElem.innerHTML = ""; // Очистка списку слотів
 
   const selectedDate = dateInputElem.value;
   if (!selectedDate) {
@@ -32,15 +28,14 @@ function updateTimeSlots() {
     currentMinutes = now.getHours() * 60 + now.getMinutes();
   }
   
-  // URL для GET-запиту до Apps Script; додаємо часову мітку для уникнення кешування
-  const url = "https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec?date="
-              + selectedDate + "&t=" + new Date().getTime();
+  // GET-запит до Apps Script із параметром дати та часовою міткою для уникнення кешування
+  const url = `https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec?date=${encodeURIComponent(selectedDate)}&t=${new Date().getTime()}`;
   
   fetch(url)
     .then(response => response.json())
     .then(data => {
       console.log("Дані з GET:", data);
-      // З отриманих записів беремо час із другого стовпця (формат "HH:mm")
+      // Заброньовані часові слоти – беремо з другого стовпця, уже у форматі "HH:mm"
       const bookedTimes = data.map(row => row[1].trim());
       console.log("BookedTimes:", bookedTimes);
       
@@ -52,18 +47,14 @@ function updateTimeSlots() {
         "17:00", "17:30", "18:00", "18:30", "19:00", "19:30", "20:00"
       ];
       
-      // Створюємо множину для швидкого пошуку заброньованих слотів
-      const bookedSet = new Set(bookedTimes);
-      
-      // Фільтруємо слоти: виключаємо заброньовані або ті, що минули (якщо обрана сьогоднішня дата)
+      // Фільтруємо, виключаючи слоти, які вже заброньовані або вже минули (якщо сьогоднішня дата)
       const availableSlots = allSlots.filter(slot => {
-        const [hour, minute] = slot.split(":").map(Number);
-        const slotInMinutes = hour * 60 + minute;
+        const [h, m] = slot.split(":").map(Number);
+        const slotInMinutes = h * 60 + m;
         const isPast = (selectedDate === todayStr && slotInMinutes < currentMinutes);
-        return (!isPast && !bookedSet.has(slot));
+        return (!isPast && !bookedTimes.includes(slot));
       });
       
-      // Оновлюємо <select>: якщо є доступні слоти – додаємо їх, інакше – повідомлення
       timeSelectElem.innerHTML = "";
       if (availableSlots.length === 0) {
         const option = document.createElement("option");
@@ -93,22 +84,22 @@ function updateTimeSlots() {
       option.disabled = true;
       timeSelectElem.appendChild(option);
     });
-}
+};
 
-// Функція бронювання запису
-function bookAppointment() {
+// Функція для бронювання запису
+const bookAppointment = () => {
   const service = document.getElementById("service").value;
-  const dateInput = document.getElementById("date").value;
-  const timeInput = document.getElementById("time").value;
+  const dateValue = document.getElementById("date").value;
+  const timeValue = document.getElementById("time").value;
   const name = document.getElementById("name").value.trim();
   const phone = document.getElementById("phone").value.trim();
   
-  if (!name || !phone || !dateInput || !timeInput) {
+  if (!name || !phone || !dateValue || !timeValue) {
     alert("Будь ласка, заповніть усі поля!");
     return;
   }
   
-  // Відправляємо значення як є (очікуємо, що користувач вводить у форматі "YYYY-MM-DD" і "HH:mm")
+  // Відправляємо значення, як їх ввів користувач
   const serviceNames = {
     classic: "Класичний манікюр",
     gel: "Гель-лак",
@@ -117,8 +108,8 @@ function bookAppointment() {
   
   const data = {
     service: serviceNames[service] || service,
-    date: dateInput, // Значення залишається рядком, наприклад "2025-04-13"
-    time: timeInput, // Значення залишається рядком, наприклад "15:45"
+    date: dateValue, // очікуваний формат: "YYYY-MM-DD"
+    time: timeValue, // очікуваний формат: "HH:mm"
     name: name,
     phone: phone
   };
@@ -139,13 +130,13 @@ function bookAppointment() {
       console.error("Помилка запису:", error);
     });
   
+  // Очищення полів введення (крім дати і часу)
   document.getElementById("name").value = "";
   document.getElementById("phone").value = "";
-}
+};
 
 // Функції для адмін-панелі
-
-function loginAdmin() {
+const loginAdmin = () => {
   const passwordInput = document.getElementById("admin-password");
   const password = passwordInput.value;
   if (password === "admin123") {
@@ -157,16 +148,16 @@ function loginAdmin() {
   } else {
     document.getElementById("admin-error").style.display = "block";
   }
-}
+};
 
-function logoutAdmin() {
+const logoutAdmin = () => {
   document.querySelector(".admin-panel").style.display = "none";
   document.querySelector(".admin-login").style.display = "block";
   document.getElementById("admin-password").value = "";
   document.getElementById("admin-error").style.display = "none";
-}
+};
 
-function enableEditing(row, originalData) {
+const enableEditing = (row, originalData) => {
   const fields = row.querySelectorAll("td:not(:last-child)");
   const editButton = row.querySelector("button");
   
@@ -182,9 +173,9 @@ function enableEditing(row, originalData) {
   } else {
     editButton.textContent = "Редагувати";
   }
-}
+};
 
-function saveChanges(row, originalData) {
+const saveChanges = (row, originalData) => {
   const updatedData = [];
   const fields = row.querySelectorAll("td:not(:last-child)");
   
@@ -208,9 +199,9 @@ function saveChanges(row, originalData) {
       console.error("Помилка оновлення запису:", error);
       alert("Не вдалося оновити запис.");
     });
-}
+};
 
-function showAppointments() {
+const showAppointments = () => {
   fetch("https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec")
     .then(response => response.json())
     .then(data => {
@@ -286,7 +277,7 @@ function showAppointments() {
     .catch(error => {
       console.error("Помилка завантаження записів:", error);
     });
-}
+};
 
 document.querySelector("h1").addEventListener("click", () => {
   document.querySelector(".admin-login").style.display = "block";
