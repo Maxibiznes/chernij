@@ -1,4 +1,4 @@
-// При завантаженні сторінки встановлюємо мінімальну дату та завантажуємо часові слоти
+// При завантаженні сторінки встановлюємо мінімальну дату і завантажуємо часові слоти
 window.onload = () => {
   const dateInput = document.getElementById("date");
   const todayStr = new Date().toISOString().split("T")[0];
@@ -21,7 +21,6 @@ const updateTimeSlots = () => {
     return;
   }
 
-  // Для сьогоднішньої дати враховуємо поточний час
   const todayStr = new Date().toISOString().split("T")[0];
   let currentMinutes = 0;
   if (selectedDate === todayStr) {
@@ -29,18 +28,17 @@ const updateTimeSlots = () => {
     currentMinutes = now.getHours() * 60 + now.getMinutes();
   }
 
-  // Формуємо URL для GET-запиту до Apps Script із параметром дати та унікальною міткою (щоб уникнути кешування)
-  const url = `https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec?date=${encodeURIComponent(selectedDate)}&t=${new Date().getTime()}`;
+  // Формуємо URL для GET-запиту із зазначенням дати та унікальною міткою (щоб уникнути кешування)
+  const url = `https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec?date=${encodeURIComponent(selectedDate)}&t=${Date.now()}`;
 
   fetch(url)
     .then(response => response.json())
     .then(data => {
       console.log("Дані з GET:", data);
-      // Отримуємо вже заброньовані слоти із другого стовпця (у форматі "HH:mm")
+      // Отримуємо заброньовані слоти (час знаходиться у другому стовпці, формат "HH:mm")
       const bookedTimes = data.map(row => row[1].trim());
       console.log("BookedTimes:", bookedTimes);
 
-      // Масив всіх можливих часових слотів
       const allSlots = [
         "08:00", "08:30", "09:00", "09:30", "10:00", "10:30",
         "11:00", "11:30", "12:00", "12:30", "13:00", "13:30",
@@ -48,11 +46,11 @@ const updateTimeSlots = () => {
         "17:00", "17:30", "18:00", "18:30", "19:00", "19:30", "20:00"
       ];
 
-      // Фільтруємо слоти. Якщо вибрана сьогоднішня дата, виключаємо ті, що вже минули
+      // Фільтруємо, виключаючи заброньовані або минулі слоти (якщо вибрана сьогоднішня дата)
       const availableSlots = allSlots.filter(slot => {
         const [h, m] = slot.split(":").map(Number);
-        const slotInMinutes = h * 60 + m;
-        const isPast = (selectedDate === todayStr && slotInMinutes < currentMinutes);
+        const slotMinutes = h * 60 + m;
+        const isPast = selectedDate === todayStr && slotMinutes < currentMinutes;
         return !isPast && !bookedTimes.includes(slot);
       });
 
@@ -108,8 +106,8 @@ const bookAppointment = () => {
 
   const data = {
     service: serviceNames[service] || service,
-    date: dateValue, // Очікується формат "YYYY-MM-DD"
-    time: timeValue, // Очікується формат "HH:mm"
+    date: dateValue,    // Очікується формат "YYYY-MM-DD"
+    time: timeValue,    // Очікується формат "HH:mm"
     name: name,
     phone: phone
   };
@@ -130,7 +128,6 @@ const bookAppointment = () => {
       console.error("Помилка запису:", error);
     });
 
-  // Очищення полів імені та телефону
   document.getElementById("name").value = "";
   document.getElementById("phone").value = "";
 };
@@ -160,13 +157,13 @@ const logoutAdmin = () => {
 const enableEditing = (row, originalData) => {
   const fields = row.querySelectorAll("td:not(:last-child)");
   const editButton = row.querySelector("button");
-  
+
   fields.forEach(field => {
     const isEditable = field.getAttribute("contenteditable") === "true";
     field.setAttribute("contenteditable", !isEditable);
     field.style.backgroundColor = isEditable ? "" : "#f9f9f9";
   });
-  
+
   if (editButton.textContent === "Редагувати") {
     editButton.textContent = "Зберегти";
     editButton.addEventListener("click", () => saveChanges(row, originalData));
@@ -178,11 +175,10 @@ const enableEditing = (row, originalData) => {
 const saveChanges = (row, originalData) => {
   const updatedData = [];
   const fields = row.querySelectorAll("td:not(:last-child)");
-  
   fields.forEach(field => {
     updatedData.push(field.textContent);
   });
-  
+
   fetch("https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec", {
     method: "POST",
     body: JSON.stringify({ original: originalData, updated: updatedData }),
@@ -207,10 +203,10 @@ const showAppointments = () => {
     .then(data => {
       const container = document.getElementById("appointments-list");
       container.innerHTML = "";
-      
+
       const table = document.createElement("table");
       table.classList.add("appointments-table");
-      
+
       const headers = ["№", "Дата", "Час", "Послуга", "Ім’я", "Телефон", "Дії"];
       const thead = document.createElement("thead");
       const headerRow = document.createElement("tr");
@@ -221,20 +217,20 @@ const showAppointments = () => {
       });
       thead.appendChild(headerRow);
       table.appendChild(thead);
-      
+
       const tbody = document.createElement("tbody");
       data.forEach((row, index) => {
         const tr = document.createElement("tr");
-        
+
         const tdIndex = document.createElement("td");
         tdIndex.textContent = index + 1;
         tr.appendChild(tdIndex);
-        
+
         const tdDate = document.createElement("td");
         const formattedDate = row[0].includes("T") ? row[0].split("T")[0] : row[0];
         tdDate.textContent = formattedDate;
         tr.appendChild(tdDate);
-        
+
         const tdTime = document.createElement("td");
         let rawTime = row[1];
         if (typeof rawTime === "string" && rawTime.includes("T")) {
@@ -242,26 +238,26 @@ const showAppointments = () => {
         }
         tdTime.textContent = rawTime;
         tr.appendChild(tdTime);
-        
+
         const tdService = document.createElement("td");
         tdService.textContent = row[2];
         tr.appendChild(tdService);
-        
+
         const tdName = document.createElement("td");
         tdName.textContent = row[3];
         tr.appendChild(tdName);
-        
+
         const tdPhone = document.createElement("td");
         tdPhone.textContent = row[4];
         tr.appendChild(tdPhone);
-        
+
         const tdActions = document.createElement("td");
         const editButton = document.createElement("button");
         editButton.textContent = "Редагувати";
         editButton.addEventListener("click", () => enableEditing(tr, row));
         tdActions.appendChild(editButton);
         tr.appendChild(tdActions);
-        
+
         tbody.appendChild(tr);
       });
       table.appendChild(tbody);
