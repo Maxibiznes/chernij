@@ -14,7 +14,7 @@ window.onload = function() {
 function updateTimeSlots() {
   const dateInputElem = document.getElementById("date");
   const timeSelectElem = document.getElementById("time");
-  timeSelectElem.innerHTML = ""; // Очищення списку слотів
+  timeSelectElem.innerHTML = ""; // Очистка списку слотів
 
   const selectedDate = dateInputElem.value;
   if (!selectedDate) {
@@ -44,7 +44,7 @@ function updateTimeSlots() {
       const bookedTimes = data.map(row => row[1].trim());
       console.log("BookedTimes:", bookedTimes);
       
-      // Масив всіх можливих часових слотів
+      // Масив усіх можливих часових слотів
       const allSlots = [
         "08:00", "08:30", "09:00", "09:30", "10:00", "10:30",
         "11:00", "11:30", "12:00", "12:30", "13:00", "13:30",
@@ -52,10 +52,10 @@ function updateTimeSlots() {
         "17:00", "17:30", "18:00", "18:30", "19:00", "19:30", "20:00"
       ];
       
-      // Створюємо множину для швидкого пошуку заброньованих слотів
+      // Створюємо множину для швидкого пошуку заброньованих слотів (без зайвих пробілів)
       const bookedSet = new Set(bookedTimes);
       
-      // Фільтруємо слоти: виключаємо ті, що вже заброньовані або минули (якщо дата сьогодні)
+      // Фільтруємо слоти: виключаємо ті, що вже заброньовані або минули (якщо вибрана сьогоднішня дата)
       const availableSlots = allSlots.filter(slot => {
         const [hour, minute] = slot.split(":").map(Number);
         const slotInMinutes = hour * 60 + minute;
@@ -63,7 +63,7 @@ function updateTimeSlots() {
         return (!isPast && !bookedSet.has(slot));
       });
       
-      // Оновлюємо select: якщо доступні слоти є, додаємо їх; інакше – повідомлення
+      // Оновлюємо select: якщо доступні слоти є – додаємо їх; інакше – повідомлення
       timeSelectElem.innerHTML = "";
       if (availableSlots.length === 0) {
         const option = document.createElement("option");
@@ -98,15 +98,21 @@ function updateTimeSlots() {
 // Функція бронювання запису
 function bookAppointment() {
   const service = document.getElementById("service").value;
-  const date = document.getElementById("date").value;
-  const time = document.getElementById("time").value;
+  const dateInput = document.getElementById("date").value;
+  const timeInput = document.getElementById("time").value;
   const name = document.getElementById("name").value.trim();
   const phone = document.getElementById("phone").value.trim();
   
-  if (!name || !phone || !date || !time) {
+  if (!name || !phone || !dateInput || !timeInput) {
     alert("Будь ласка, заповніть усі поля!");
     return;
   }
+  
+  // Формуємо локальний Date-об'єкт за введеними даними
+  const localDateTime = new Date(`${dateInput}T${timeInput}:00`);
+  // Перетворюємо у формат ISO - UTC
+  const utcDate = localDateTime.toISOString().split("T")[0];
+  const utcTime = localDateTime.toISOString().split("T")[1].substring(0, 5);
   
   const serviceNames = {
     classic: "Класичний манікюр",
@@ -116,8 +122,8 @@ function bookAppointment() {
   
   const data = {
     service: serviceNames[service] || service,
-    date: date,
-    time: time,
+    date: utcDate, // Записуємо дату у форматі "YYYY-MM-DD" (UTC)
+    time: utcTime, // Записуємо час у форматі "HH:mm" (UTC)
     name: name,
     phone: phone
   };
@@ -129,7 +135,7 @@ function bookAppointment() {
     .then(response => response.text())
     .then(result => {
       document.getElementById("confirmation").textContent =
-        `Ви записані на ${data.service} до Оксани Черній на ${date} о ${time}. Дякуємо, ${name}!`;
+        `Ви записані на ${data.service} до Оксани Черній на ${data.date} о ${data.time}. Дякуємо, ${name}!`;
       document.getElementById("confirmation").style.display = "block";
       setTimeout(updateTimeSlots, 1000);
     })
@@ -143,7 +149,6 @@ function bookAppointment() {
 }
 
 // Функції для адмін-панелі
-
 function loginAdmin() {
   const passwordInput = document.getElementById("admin-password");
   const password = passwordInput.value;
@@ -239,13 +244,13 @@ function showAppointments() {
         tdIndex.textContent = index + 1;
         tr.appendChild(tdIndex);
         
-        // Колонка: Дата (якщо містить "T", беремо лише частину до неї)
+        // Колонка: Дата – якщо містить "T", беремо лише частину до нього
         const tdDate = document.createElement("td");
         const formattedDate = row[0].includes("T") ? row[0].split("T")[0] : row[0];
         tdDate.textContent = formattedDate;
         tr.appendChild(tdDate);
         
-        // Колонка: Час (якщо містить "T", беремо лише "HH:mm")
+        // Колонка: Час – якщо містить "T", беремо лише "HH:mm"
         const tdTime = document.createElement("td");
         let rawTime = row[1];
         if (typeof rawTime === "string" && rawTime.includes("T")) {
@@ -290,7 +295,6 @@ function showAppointments() {
 document.querySelector("h1").addEventListener("click", () => {
   document.querySelector(".admin-login").style.display = "block";
 });
-
 document.querySelector('h1').addEventListener('click', () => {
   document.querySelector('.admin-login').style.display = 'block';
 });
