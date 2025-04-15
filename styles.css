@@ -1,140 +1,51 @@
 body {
-    font-family: 'Roboto', sans-serif;
-    background: linear-gradient(135deg, #ffe6f0, #fff0f5);
-    margin: 0;
-    padding: 20px;
+  font-family: 'Roboto', sans-serif;
+  background: linear-gradient(135deg, #ffe6f0, #fff0f5);
+  margin: 0;
+  padding: 20px;
 }
 
 .container {
-    max-width: 600px;
-    margin: 0 auto;
-    background: white;
-    padding: 30px;
-    border-radius: 15px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
+  margin: 0 auto;
+  background: white;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
 .header {
-    text-align: center;
-    margin-bottom: 30px;
-}
-#appointments-list {
-    max-width: 100%; /* Забезпечує, що контейнер не виходить за межі батьківського елемента */
-    overflow-x: auto; /* Додає горизонтальну прокрутку, якщо таблиця ширша за контейнер */
+  text-align: center;
+  margin-bottom: 30px;
 }
 
 .appointments-table {
-    width: 100%; /* Робить таблицю адаптивною */
-    border-collapse: collapse;
-    margin-bottom: 20px;
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
 }
 
-.appointments-table th,
-.appointments-table td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
+.appointments-table th, .appointments-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
 }
 
 .appointments-table th {
-    background-color: #f2f2f2;
-    font-weight: bold;
-}
-
-.profile-pic {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    border: 3px solid #ff99cc;
-    object-fit: cover;
-}
-
-h1 {
-    font-family: 'Playfair Display', serif;
-    color: #ff6699;
-    font-size: 32px;
-    margin: 10px 0;
-}
-
-.slogan {
-    color: #666;
-    font-style: italic;
-    font-size: 16px;
-}
-
-.form-section {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-label {
-    font-weight: bold;
-    color: #ff6699;
-}
-
-select, input, button {
-    padding: 12px;
-    font-size: 16px;
-    border: 2px solid #ffccdd;
-    border-radius: 8px;
-    background: #fff;
-}
-
-select option:disabled {
-    color: #ccc;
+  background-color: #f2f2f2;
+  font-weight: bold;
 }
 
 button {
-    background: #ff6699;
-    color: white;
-    border: none;
-    cursor: pointer;
-    transition: background 0.3s;
+  background-color: #ff6699;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
 button:hover {
-    background: #ff3366;
-}
-
-#confirmation {
-    margin-top: 20px;
-    color: #28a745;
-    font-weight: bold;
-}
-
-.admin-login, .admin-panel {
-    max-width: 400px;
-    margin: 20px auto;
-    padding: 20px;
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-}
-.appointments-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 20px;
-}
-
-.appointments-table th,
-.appointments-table td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
-}
-
-.appointments-table th {
-    background-color: #f2f2f2;
-    font-weight: bold;
-}
-
-.admin-panel ul {
-    list-style: none;
-    padding: 0;
-}
-
-.admin-panel li {
-    padding: 10px;
-    border-bottom: 1px solid #eee;
+  background-color: #ff3366;
 }
