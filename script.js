@@ -108,7 +108,7 @@ function bookAppointment() {
     return;
   }
   
-  // Більше не конвертуємо дату і час – відправляємо значення як є
+  // Не конвертуємо дату і час - відправляємо їх як є. Ми очікуємо, що користувач вводить наприклад "2025-04-13" та "15:45".
   const serviceNames = {
     classic: "Класичний манікюр",
     gel: "Гель-лак",
@@ -117,8 +117,8 @@ function bookAppointment() {
   
   const data = {
     service: serviceNames[service] || service,
-    date: dateInput, // Залишаємо у форматі "YYYY-MM-DD"
-    time: timeInput, // Залишаємо у форматі "HH:mm"
+    date: dateInput, // Відсилаємо як рядок "YYYY-MM-DD"
+    time: timeInput, // Відсилаємо як рядок "HH:mm"
     name: name,
     phone: phone
   };
