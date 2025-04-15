@@ -1,62 +1,140 @@
-<!DOCTYPE html>
-<html lang="uk">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Запис до Оксани Черній</title>
-    <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display&family=Roboto:wght@300&display=swap" rel="stylesheet">
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <img src="https://via.placeholder.com/150" alt="Оксана Черній" class="profile-pic">
-            <h1>Оксана Черній</h1>
-            <p class="slogan">Ваші нігті — моя турбота! Досконалий манікюр із любов’ю та стилем.</p>
-        </div>
-        
-        <div class="form-section">
-            <label for="service">Оберіть послугу:</label>
-            <select id="service">
-                <option value="classic">Класичний манікюр - 200 грн</option>
-                <option value="gel">Гель-лак - 350 грн</option>
-                <option value="design">Манікюр із дизайном - 400 грн</option>
-            </select>
+body {
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(135deg, #ffe6f0, #fff0f5);
+    margin: 0;
+    padding: 20px;
+}
 
-            <label for="date">Оберіть дату:</label>
-            <input type="date" id="date" min="2025-02-25" onchange="updateTimeSlots()">
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
 
-            <label for="time">Оберіть час:</label>
-            <select id="time">
-                <option value="">Спочатку оберіть дату</option>
-            </select>
+.header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+#appointments-list {
+    max-width: 100%; /* Забезпечує, що контейнер не виходить за межі батьківського елемента */
+    overflow-x: auto; /* Додає горизонтальну прокрутку, якщо таблиця ширша за контейнер */
+}
 
-            <label for="name">Ваше ім’я:</label>
-            <input type="text" id="name" placeholder="Введіть ім’я">
+.appointments-table {
+    width: 100%; /* Робить таблицю адаптивною */
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
 
-            <label for="phone">Ваш телефон:</label>
-            <input type="tel" id="phone" placeholder="Введіть номер телефону">
+.appointments-table th,
+.appointments-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
 
-            <button onclick="bookAppointment()">Записатися</button>
-        </div>
+.appointments-table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
 
-        <p id="confirmation" style="display: none;"></p>
-    </div>
+.profile-pic {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    border: 3px solid #ff99cc;
+    object-fit: cover;
+}
 
-    <div class="admin-login" style="display: none;">
-        <h2>Вхід для адміна</h2>
-        <input type="password" id="admin-password" placeholder="Введіть пароль">
-        <button onclick="loginAdmin()">Увійти</button>
-        <p id="admin-error" style="color: red; display: none;">Невірний пароль!</p>
-    </div>
+h1 {
+    font-family: 'Playfair Display', serif;
+    color: #ff6699;
+    font-size: 32px;
+    margin: 10px 0;
+}
 
-    <div class="admin-panel" style="display: none;">
-        <h2>Панель адміністратора</h2>
-        <button onclick="logoutAdmin()">Вийти</button>
-        <h3>Записи</h3>
-        <ul id="appointments-list"></ul>
-    </div>
+.slogan {
+    color: #666;
+    font-style: italic;
+    font-size: 16px;
+}
 
-    <script src="script.js"></script>
-</body>
-</html>
+.form-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+label {
+    font-weight: bold;
+    color: #ff6699;
+}
+
+select, input, button {
+    padding: 12px;
+    font-size: 16px;
+    border: 2px solid #ffccdd;
+    border-radius: 8px;
+    background: #fff;
+}
+
+select option:disabled {
+    color: #ccc;
+}
+
+button {
+    background: #ff6699;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+button:hover {
+    background: #ff3366;
+}
+
+#confirmation {
+    margin-top: 20px;
+    color: #28a745;
+    font-weight: bold;
+}
+
+.admin-login, .admin-panel {
+    max-width: 400px;
+    margin: 20px auto;
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+.appointments-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.appointments-table th,
+.appointments-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.appointments-table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+.admin-panel ul {
+    list-style: none;
+    padding: 0;
+}
+
+.admin-panel li {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+}
