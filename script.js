@@ -35,11 +35,8 @@ function updateTimeSlots() {
   const url = "https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec?date="
               + selectedDate + "&t=" + new Date().getTime();
   
-  fetch(url, { method: "GET", mode: "cors" })
-    .then(response => {
-      if (!response.ok) throw new Error("Серверна помилка: " + response.status);
-      return response.json();
-    })
+  fetch(url)
+    .then(response => response.json())
     .then(data => {
       const bookedTimes = data.map(row => row[1].trim());
       const allSlots = [
@@ -123,14 +120,9 @@ function bookAppointment() {
   
   fetch("https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec", {
     method: "POST",
-    mode: "cors",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data)
   })
-  .then(response => {
-    if (!response.ok) throw new Error("Серверна помилка: " + response.status);
-    return response.text();
-  })
+  .then(response => response.text())
   .then(result => {
     if (result !== "Success") throw new Error(result);
     document.getElementById("confirmation").textContent =
@@ -217,14 +209,9 @@ function saveChanges(row, originalData) {
   
   fetch("https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec", {
     method: "POST",
-    mode: "cors",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data)
   })
-  .then(response => {
-    if (!response.ok) throw new Error("Серверна помилка: " + response.status);
-    return response.text();
-  })
+  .then(response => response.text())
   .then(result => {
     if (result !== "Success") throw new Error(result);
     alert("Запис успішно оновлено!");
@@ -237,14 +224,8 @@ function saveChanges(row, originalData) {
 }
 
 function showAppointments() {
-  fetch("https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec", {
-    method: "GET",
-    mode: "cors"
-  })
-    .then(response => {
-      if (!response.ok) throw new Error("Серверна помилка: " + response.status);
-      return response.json();
-    })
+  fetch("https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec")
+    .then(response => response.json())
     .then(data => {
       const container = document.getElementById("appointments-list");
       container.innerHTML = "";
