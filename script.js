@@ -233,7 +233,7 @@ function showAppointments() {
       const table = document.createElement("table");
       table.classList.add("appointments-table");
       
-      const headers = ["№", "Дата", "Час", "Послуга", "Ім’я", "Телефон", "Дії"];
+      const headers = ["№", "Дата", "Час", "Послуга", "Ім'я", "Телефон", "Дії"];
       const thead = document.createElement("thead");
       const headerRow = document.createElement("tr");
       headers.forEach(headerText => {
@@ -253,11 +253,25 @@ function showAppointments() {
         tr.appendChild(tdIndex);
         
         const tdDate = document.createElement("td");
-        tdDate.textContent = row[0].includes("T") ? row[0].split("T")[0] : row[0];
+        // Форматування дати
+        const dateStr = row[0];
+        if (dateStr.includes("T")) {
+          tdDate.textContent = dateStr.split("T")[0];
+        } else {
+          tdDate.textContent = dateStr;
+        }
         tr.appendChild(tdDate);
         
         const tdTime = document.createElement("td");
-        tdTime.textContent = row[1].includes("T") ? row[1].split("T")[1].substring(0,5) : row[1];
+        // Форматування часу
+        const timeStr = row[1];
+        if (timeStr.includes("T")) {
+          const timePart = timeStr.split("T")[1];
+          const [hours, minutes] = timePart.split(":");
+          tdTime.textContent = `${hours}:${minutes}`;
+        } else {
+          tdTime.textContent = timeStr;
+        }
         tr.appendChild(tdTime);
         
         const tdService = document.createElement("td");
