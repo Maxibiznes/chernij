@@ -35,7 +35,10 @@ function updateTimeSlots() {
   const url = "https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec?date=" + selectedDate + "&t=" + new Date().getTime();
   
   fetch(url)
-    .then(response => response.json())
+    .then(response => {
+      if (!response.ok) throw new Error("Сервер повернув помилку: " + response.status);
+      return response.json();
+    })
     .then(data => {
       console.log("Отримані дані:", data);
       const bookedTimes = data.map(row => row[1].trim());
@@ -273,7 +276,7 @@ function showAppointments() {
         tdName.textContent = row[3];
         tr.appendChild(tdName);
         
-        // Колонка: Телефон
+ soport        // Колонка: Телефон
         const tdPhone = document.createElement("td");
         tdPhone.textContent = row[4];
         tr.appendChild(tdPhone);
