@@ -47,11 +47,29 @@ function updateTimeSlots() {
       ];
       
       const bookedSet = new Set(bookedTimes);
+      // Обчислюємо недоступні слоти з урахуванням 2-годинного вікна
+      const unavailableSlots = new Set();
+      bookedTimes.forEach(bookedSlot => {
+        if (!/^\d{2}:\d{2}$/.test(bookedSlot)) return; // Пропускаємо некоректний час
+        const [bookedHour, bookedMinute] = bookedSlot.split(":").map(Number);
+        const bookedMinutes = bookedHour * 60 + bookedMinute;
+        const endMinutes = bookedMinutes + 120; // Додаємо 2 години (120 хвилин)
+
+        // Додаємо всі слоти до і під час 2-годинного вікна в недоступні
+        allSlots.forEach(slot => {
+          const [hour, minute] = slot.split(":").map(Number);
+          const slotMinutes = hour * 60 + minute;
+          if (slotMinutes <= endMinutes) {
+            unavailableSlots.add(slot);
+          }
+        });
+      });
+
       const availableSlots = allSlots.filter(slot => {
         const [hour, minute] = slot.split(":").map(Number);
         const slotInMinutes = hour * 60 + minute;
         const isPast = (selectedDate === todayStr && slotInMinutes < currentMinutes);
-        return (!isPast && !bookedSet.has(slot));
+        return (!isPast && !unavailableSlots.has(slot));
       });
       
       timeSelectElem.innerHTML = "";
