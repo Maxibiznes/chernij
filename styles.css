@@ -18,13 +18,14 @@ body {
     text-align: center;
     margin-bottom: 30px;
 }
+
 #appointments-list {
-    max-width: 100%; /* Забезпечує, що контейнер не виходить за межі батьківського елемента */
-    overflow-x: auto; /* Додає горизонтальну прокрутку, якщо таблиця ширша за контейнер */
+    max-width: 100%;
+    overflow-x: auto;
 }
 
 .appointments-table {
-    width: 100%; /* Робить таблицю адаптивною */
+    width: 100%;
     border-collapse: collapse;
     margin-bottom: 20px;
 }
@@ -82,7 +83,8 @@ select, input, button {
 }
 
 select option:disabled {
-    color: #ccc;
+    color: #999;
+    background-color: #f0f0f0;
 }
 
 button {
@@ -110,23 +112,6 @@ button:hover {
     background: white;
     border-radius: 10px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-}
-.appointments-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 20px;
-}
-
-.appointments-table th,
-.appointments-table td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
-}
-
-.appointments-table th {
-    background-color: #f2f2f2;
-    font-weight: bold;
 }
 
 .admin-panel ul {
