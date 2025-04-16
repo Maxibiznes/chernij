@@ -227,6 +227,7 @@ function showAppointments() {
   fetch("https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec")
     .then(response => response.json())
     .then(data => {
+      console.log("Отримані дані з сервера:", data); // Дебаг-лог
       const container = document.getElementById("appointments-list");
       container.innerHTML = "";
       
@@ -257,7 +258,7 @@ function showAppointments() {
         tr.appendChild(tdDate);
         
         const tdTime = document.createElement("td");
-        tdTime.textContent = row[1]; // Час вже відформатований бекендом
+        tdTime.textContent = row[1]; // Час уже відформатований бекендом
         tr.appendChild(tdTime);
         
         const tdService = document.createElement("td");
