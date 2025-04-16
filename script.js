@@ -37,9 +37,9 @@ function updateTimeSlots() {
   fetch(url)
     .then(response => response.json())
     .then(data => {
-      console.log("Дані з GET:", data);
+      console.log("Отримані дані:", data);
       const bookedTimes = data.map(row => row[1].trim());
-      console.log("BookedTimes:", bookedTimes);
+      console.log("Заброньовані часи:", bookedTimes);
       
       const allSlots = [
         "08:00", "08:30", "09:00", "09:30", "10:00", "10:30",
@@ -255,12 +255,12 @@ function showAppointments() {
         
         // Колонка: Дата
         const tdDate = document.createElement("td");
-        tdDate.textContent = row[0]; // Формат yyyy-MM-dd із сервера
+        tdDate.textContent = row[0]; // yyyy-MM-dd
         tr.appendChild(tdDate);
         
         // Колонка: Час
         const tdTime = document.createElement("td");
-        tdTime.textContent = row[1]; // Формат HH:mm із сервера
+        tdTime.textContent = row[1]; // HH:mm
         tr.appendChild(tdTime);
         
         // Колонка: Послуга
