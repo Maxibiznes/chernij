@@ -56,11 +56,11 @@ function updateTimeSlots() {
         const startMinutes = bookedMinutes - 120; // 2 години перед
         const endMinutes = bookedMinutes + 120; // 2 години після
 
-        // Додаємо слоти в межах 2-годинного вікна перед і після
+        // Додаємо слоти в межах 2-годинного вікна перед і після, але виключаємо самі межі
         allSlots.forEach(slot => {
           const [hour, minute] = slot.split(":").map(Number);
           const slotMinutes = hour * 60 + minute;
-          if (slotMinutes >= startMinutes && slotMinutes <= endMinutes) {
+          if (slotMinutes > startMinutes && slotMinutes < endMinutes) {
             unavailableSlots.add(slot);
           }
         });
