@@ -253,25 +253,11 @@ function showAppointments() {
         tr.appendChild(tdIndex);
         
         const tdDate = document.createElement("td");
-        // Форматування дати
-        const dateStr = row[0];
-        if (dateStr.includes("T")) {
-          tdDate.textContent = dateStr.split("T")[0];
-        } else {
-          tdDate.textContent = dateStr;
-        }
+        tdDate.textContent = row[0]; // Дата вже відформатована бекендом
         tr.appendChild(tdDate);
         
         const tdTime = document.createElement("td");
-        // Форматування часу
-        const timeStr = row[1];
-        if (timeStr.includes("T")) {
-          const timePart = timeStr.split("T")[1];
-          const [hours, minutes] = timePart.split(":");
-          tdTime.textContent = `${hours}:${minutes}`;
-        } else {
-          tdTime.textContent = timeStr;
-        }
+        tdTime.textContent = row[1]; // Час вже відформатований бекендом
         tr.appendChild(tdTime);
         
         const tdService = document.createElement("td");
