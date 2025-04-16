@@ -8,6 +8,20 @@ window.onload = function() {
   const todayStr = yyyy + '-' + mm + '-' + dd;
   dateInput.setAttribute("min", todayStr);
   updateTimeSlots();
+
+  // Додаємо обробник події change для перевірки дати
+  dateInput.addEventListener("change", function() {
+    const selectedDate = new Date(this.value);
+    const todayDate = new Date(todayStr);
+    todayDate.setHours(0, 0, 0, 0); // Скидаємо час для коректного порівняння
+    selectedDate.setHours(0, 0, 0, 0);
+
+    if (selectedDate < todayDate) {
+      alert("Не можна обирати дати в минулому. Будь ласка, оберіть сьогоднішню або майбутню дату.");
+      this.value = ""; // Очищаємо поле
+      updateTimeSlots(); // Оновлюємо слоти (показуємо "Спочатку оберіть дату")
+    }
+  });
 };
 
 // Функція для оновлення списку доступних часових слотів
