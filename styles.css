@@ -1,154 +1,138 @@
 body {
-    font-family: 'Roboto', sans-serif;
-    background: linear-gradient(135deg, #ffe6f0, #fff0f5);
-    margin: 0;
-    padding: 20px;
+  background: linear-gradient(to bottom, #fff, #ffe8f0);
+  font-family: 'Poppins', sans-serif;
+  color: #212121;
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
 }
 
 .container {
-    max-width: 600px;
-    margin: 0 auto;
-    background: white;
-    padding: 30px;
-    border-radius: 15px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  max-width: 500px;
+  width: 100%;
+  position: relative;
 }
 
-.header {
-    text-align: center;
-    margin-bottom: 30px;
-}
-
-#appointments-list {
-    max-width: 100%;
-    overflow-x: auto;
-}
-
-.appointments-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 20px;
-}
-
-.appointments-table th,
-.appointments-table td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
-    white-space: normal;
-    word-wrap: break-word;
-    min-width: 80px; /* Мінімальна ширина комірок */
-}
-
-.appointments-table th {
-    background-color: #f2f2f2;
-    font-weight: bold;
-}
-
-.profile-pic {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    border: 3px solid #ff99cc;
-    object-fit: cover;
+header {
+  text-align: center;
+  margin-bottom: 2rem;
 }
 
 h1 {
-    font-family: 'Playfair Display', serif;
-    color: #ff6699;
-    font-size: 32px;
-    margin: 10px 0;
+  font-size: 2.5rem;
+  font-weight: 600;
+  color: #E91E63;
+  margin: 0;
+  animation: fadeIn 1s ease-in;
 }
 
 .slogan {
-    color: #666;
-    font-style: italic;
-    font-size: 16px;
+  font-size: 1.1rem;
+  color: #757575;
+  margin: 0.5rem 0 0;
 }
 
-.form-section {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+#booking-form {
+  background: #ffffff;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(255, 64, 129, 0.1);
+  margin-bottom: 1.5rem;
 }
 
-label {
-    font-weight: bold;
-    color: #ff6699;
+.form-group {
+  margin-bottom: 1.2rem;
 }
 
-select, input, button {
-    padding: 12px;
-    font-size: 16px;
-    border: 2px solid #ffccdd;
-    border-radius: 8px;
-    background: #fff;
+.form-group label {
+  display: block;
+  font-size: 0.9rem;
+  color: #757575;
+  margin-bottom: 0.4rem;
 }
 
-select option:disabled {
-    color: #ccc;
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid #F8BBD0;
+  border-radius: 6px;
+  background: #ffffff;
+  font-size: 1rem;
+  color: #212121;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: border-color 0.3s, box-shadow 0.3s;
 }
 
-button {
-    background: #ff6699;
-    color: white;
-    border: none;
-    cursor: pointer;
-    transition: background 0.3s;
+.form-group input:focus,
+.form-group select:focus {
+  border-color: #FF4081;
+  box-shadow: 0 0 5px rgba(255, 64, 129, 0.3);
+  outline: none;
 }
 
-button:hover {
-    background: #ff3366;
+.form-group input::placeholder,
+.form-group select:invalid {
+  color: #9E9E9E;
+}
+
+#submit-btn {
+  width: 100%;
+  padding: 1rem;
+  background: #FF4081;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(255, 64, 129, 0.3);
+  transition: background 0.3s, transform 0.2s;
+}
+
+#submit-btn:hover {
+  background: #F50057;
+  transform: translateY(-2px);
+}
+
+#submit-btn:active {
+  transform: translateY(0);
 }
 
 #confirmation {
-    margin-top: 20px;
-    color: #28a745;
-    font-weight: bold;
+  text-align: center;
+  font-size: 1rem;
+  color: #212121;
 }
 
-.admin-login, .admin-panel {
-    max-width: 600px; /* Збільшено ширину для таблиці */
-    margin: 20px auto;
-    padding: 20px;
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+.decoration {
+  position: absolute;
+  width: 60px;
+  opacity: 0.8;
 }
 
-.admin-panel ul {
-    list-style: none;
-    padding: 0;
+.decoration.left {
+  top: 10%;
+  left: -80px;
 }
 
-.admin-panel li {
-    padding: 10px;
-    border-bottom: 1px solid #eee;
+.decoration.right {
+  bottom: 10%;
+  right: -80px;
 }
 
-/* Адаптивність для мобільних пристроїв */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 @media (max-width: 600px) {
-    .container {
-        padding: 15px;
-    }
-    
-    .appointments-table th,
-    .appointments-table td {
-        padding: 6px;
-        font-size: 14px;
-        min-width: 60px; /* Зменшена ширина для мобільних */
-    }
-    
-    .profile-pic {
-        width: 120px;
-        height: 120px;
-    }
-    
-    h1 {
-        font-size: 28px;
-    }
-    
-    .slogan {
-        font-size: 14px;
-    }
+  body { padding: 10px; }
+  h1 { font-size: 2rem; }
+  .slogan { font-size: 1rem; }
+  #booking-form { padding: 1.5rem; }
+  .decoration { display: none; } /* Ховаємо ілюстрації на мобільних */
 }
