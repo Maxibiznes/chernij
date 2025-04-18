@@ -9,18 +9,17 @@ window.onload = function() {
   dateInput.setAttribute("min", todayStr);
   updateTimeSlots();
 
+  // Додаємо обробник події change для перевірки дати
   dateInput.addEventListener("change", function() {
     const selectedDate = new Date(this.value);
     const todayDate = new Date(todayStr);
-    todayDate.setHours(0, 0, 0, 0);
+    todayDate.setHours(0, 0, 0, 0); // Скидаємо час для коректного порівняння
     selectedDate.setHours(0, 0, 0, 0);
 
     if (selectedDate < todayDate) {
-      alert("Не можна обирати дати в минулому.");
-      this.value = "";
-      updateTimeSlots();
-    } else {
-      updateTimeSlots();
+      alert("Не можна обирати дати в минулому. Будь ласка, оберіть сьогоднішню або майбутню дату.");
+      this.value = ""; // Очищаємо поле
+      updateTimeSlots(); // Оновлюємо слоти (показуємо "Спочатку оберіть дату")
     }
   });
 };
@@ -29,7 +28,7 @@ window.onload = function() {
 function updateTimeSlots() {
   const dateInputElem = document.getElementById("date");
   const timeSelectElem = document.getElementById("time");
-  timeSelectElem.innerHTML = "";
+  timeSelectElem.innerHTML = ""; // Очищення списку слотів
 
   const selectedDate = dateInputElem.value;
   if (!selectedDate) {
@@ -47,15 +46,12 @@ function updateTimeSlots() {
     currentMinutes = now.getHours() * 60 + now.getMinutes();
   }
   
-  const url = "https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec?date=" + selectedDate + "&t=" + new Date().getTime();
+  const url = "https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec?date="
+              + selectedDate + "&t=" + new Date().getTime();
   
   fetch(url)
-    .then(response => {
-      if (!response.ok) throw new Error("HTTP error: " + response.status);
-      return response.json();
-    })
+    .then(response => response.json())
     .then(data => {
-      console.log("Time slots data:", data);
       const bookedTimes = data.map(row => row[1].trim());
       const allSlots = [
         "08:00", "08:30", "09:00", "09:30", "10:00", "10:30",
@@ -65,14 +61,16 @@ function updateTimeSlots() {
       ];
       
       const bookedSet = new Set(bookedTimes);
+      // Обчислюємо недоступні слоти з урахуванням 2-годинного вікна перед і після кожного заброньованого часу
       const unavailableSlots = new Set();
       bookedTimes.forEach(bookedSlot => {
-        if (!/^\d{2}:\d{2}$/.test(bookedSlot)) return;
+        if (!/^\d{2}:\d{2}$/.test(bookedSlot)) return; // Пропускаємо некоректний час
         const [bookedHour, bookedMinute] = bookedSlot.split(":").map(Number);
         const bookedMinutes = bookedHour * 60 + bookedMinute;
-        const startMinutes = bookedMinutes - 120;
-        const endMinutes = bookedMinutes + 120;
+        const startMinutes = bookedMinutes - 120; // 2 години перед
+        const endMinutes = bookedMinutes + 120; // 2 години після
 
+        // Додаємо слоти в межах 2-годинного вікна перед і після, але виключаємо самі межі
         allSlots.forEach(slot => {
           const [hour, minute] = slot.split(":").map(Number);
           const slotMinutes = hour * 60 + minute;
@@ -111,10 +109,10 @@ function updateTimeSlots() {
       }
     })
     .catch(err => {
-      console.error("Помилка оновлення слотів:", err);
+      console.error("Помилка отримання записів:", err);
       timeSelectElem.innerHTML = "";
       const option = document.createElement("option");
-      option.textContent = "Помилка завантаження слотів";
+      option.textContent = "Не вдалося завантажити слоти";
       option.disabled = true;
       timeSelectElem.appendChild(option);
     });
@@ -134,7 +132,7 @@ function bookAppointment() {
   }
   
   if (!/^\+?\d{10,12}$/.test(phone)) {
-    alert("Невірний формат телефону.");
+    alert("Невірний формат телефону. Введіть 10-12 цифр, наприклад, +380123456789.");
     return;
   }
   
@@ -153,31 +151,23 @@ function bookAppointment() {
     phone: phone
   };
   
-  console.log("Booking data:", data);
-  
   fetch("https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
     body: JSON.stringify(data)
   })
-  .then(response => {
-    if (!response.ok) throw new Error("HTTP error: " + response.status);
-    return response.text();
-  })
+  .then(response => response.text())
   .then(result => {
     if (result !== "Success") throw new Error(result);
     document.getElementById("confirmation").textContent =
-      `Ви записані на ${data.service} на ${date} о ${time}. Дякуємо, ${name}!`;
+      `Ви записані на ${data.service} до Оксани Черній на ${date} о ${time}. Дякуємо, ${name}!`;
     document.getElementById("confirmation").style.display = "block";
     document.getElementById("name").value = "";
     document.getElementById("phone").value = "";
     setTimeout(updateTimeSlots, 1000);
   })
   .catch(error => {
-    console.error("Помилка запису:", error);
     alert("Помилка запису: " + error.message);
+    console.error("Помилка запису:", error);
   });
 }
 
@@ -224,7 +214,7 @@ function enableEditing(row, originalData) {
 
 function saveChanges(row, originalData) {
   const fields = row.querySelectorAll("td:not(:last-child):not(:first-child)");
-  const updatedData = [originalData[0]];
+  const updatedData = [originalData[0]]; // Зберігаємо номер рядка
   fields.forEach(field => updatedData.push(field.textContent.trim()));
   
   if (!/^\d{4}-\d{2}-\d{2}$/.test(updatedData[1])) {
@@ -244,53 +234,33 @@ function saveChanges(row, originalData) {
     return;
   }
   
-  console.log("Original Data:", originalData);
-  console.log("Updated Data:", updatedData);
-  
-  if (!originalData || !Array.isArray(originalData) || originalData.length !== 6) {
-    console.error("Некоректний originalData:", originalData);
-    alert("Помилка: Некоректні дані для оновлення.");
-    return;
-  }
-  
   const data = {
     action: "update",
     original: originalData.slice(1),
     updated: updatedData.slice(1)
   };
   
-  console.log("Data sent to server:", JSON.stringify(data));
-
   fetch("https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
     body: JSON.stringify(data)
   })
-  .then(response => {
-    if (!response.ok) throw new Error("HTTP error: " + response.status);
-    return response.text();
-  })
+  .then(response => response.text())
   .then(result => {
     if (result !== "Success") throw new Error(result);
     alert("Запис успішно оновлено!");
     showAppointments();
   })
   .catch(error => {
-    console.error("Помилка оновлення:", error);
     alert("Помилка оновлення запису: " + error.message);
+    console.error("Помилка оновлення запису:", error);
   });
 }
 
 function showAppointments() {
   fetch("https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec")
-    .then(response => {
-      if (!response.ok) throw new Error("HTTP error: " + response.status);
-      return response.json();
-    })
+    .then(response => response.json())
     .then(data => {
-      console.log("Appointments data:", data);
+      console.log("Отримані дані з сервера:", data); // Дебаг-лог
       const container = document.getElementById("appointments-list");
       container.innerHTML = "";
       
@@ -317,11 +287,11 @@ function showAppointments() {
         tr.appendChild(tdIndex);
         
         const tdDate = document.createElement("td");
-        tdDate.textContent = row[0];
+        tdDate.textContent = row[0]; // Дата вже відформатована бекендом
         tr.appendChild(tdDate);
         
         const tdTime = document.createElement("td");
-        tdTime.textContent = row[1];
+        tdTime.textContent = row[1]; // Час уже відформатований бекендом
         tr.appendChild(tdTime);
         
         const tdService = document.createElement("td");
@@ -333,7 +303,7 @@ function showAppointments() {
         tr.appendChild(tdName);
         
         const tdPhone = document.createElement("td");
-        tdPhone.textContent | row[4];
+        tdPhone.textContent = row[4];
         tr.appendChild(tdPhone);
         
         const tdActions = document.createElement("td");
