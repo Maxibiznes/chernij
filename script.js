@@ -234,12 +234,25 @@ function saveChanges(row, originalData) {
     return;
   }
   
+  // Логування для дебагу
+  console.log("Original Data:", originalData);
+  console.log("Updated Data:", updatedData);
+  
+  // Перевірка коректності originalData
+  if (!originalData || !Array.isArray(originalData) || originalData.length < 6) {
+    console.error("Некоректний originalData:", originalData);
+    alert("Помилка: Некоректні дані для оновлення.");
+    return;
+  }
+  
   const data = {
     action: "update",
     original: originalData.slice(1),
     updated: updatedData.slice(1)
   };
   
+  console.log("Data sent to server:", data);
+
   fetch("https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec", {
     method: "POST",
     body: JSON.stringify(data)
