@@ -90,7 +90,7 @@ function updateTimeSlots() {
       timeSelectElem.innerHTML = "";
       if (availableSlots.length === 0) {
         const option = document.createElement("option");
-        option.textContent = "Немає доступних слотів";
+        option.textContent = "Оксана весь день зайнята";
         option.disabled = true;
         timeSelectElem.appendChild(option);
       } else {
