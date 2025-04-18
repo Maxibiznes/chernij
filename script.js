@@ -20,8 +20,6 @@ window.onload = function() {
       alert("Не можна обирати дати в минулому. Будь ласка, оберіть сьогоднішню або майбутню дату.");
       this.value = ""; // Очищаємо поле
       updateTimeSlots(); // Оновлюємо слоти (показуємо "Спочатку оберіть дату")
-    } else {
-      updateTimeSlots();
     }
   });
 };
@@ -52,12 +50,8 @@ function updateTimeSlots() {
               + selectedDate + "&t=" + new Date().getTime();
   
   fetch(url)
-    .then(response => {
-      if (!response.ok) throw new Error("HTTP error: " + response.status);
-      return response.json();
-    })
+    .then(response => response.json())
     .then(data => {
-      console.log("Time slots data:", data); // Дебаг-лог
       const bookedTimes = data.map(row => row[1].trim());
       const allSlots = [
         "08:00", "08:30", "09:00", "09:30", "10:00", "10:30",
@@ -67,6 +61,7 @@ function updateTimeSlots() {
       ];
       
       const bookedSet = new Set(bookedTimes);
+      // Обчислюємо недоступні слоти з урахуванням 2-годинного вікна перед і після кожного заброньованого часу
       const unavailableSlots = new Set();
       bookedTimes.forEach(bookedSlot => {
         if (!/^\d{2}:\d{2}$/.test(bookedSlot)) return; // Пропускаємо некоректний час
@@ -75,6 +70,7 @@ function updateTimeSlots() {
         const startMinutes = bookedMinutes - 120; // 2 години перед
         const endMinutes = bookedMinutes + 120; // 2 години після
 
+        // Додаємо слоти в межах 2-годинного вікна перед і після, але виключаємо самі межі
         allSlots.forEach(slot => {
           const [hour, minute] = slot.split(":").map(Number);
           const slotMinutes = hour * 60 + minute;
@@ -113,7 +109,7 @@ function updateTimeSlots() {
       }
     })
     .catch(err => {
-      console.error("Помилка оновлення слотів:", err);
+      console.error("Помилка отримання записів:", err);
       timeSelectElem.innerHTML = "";
       const option = document.createElement("option");
       option.textContent = "Не вдалося завантажити слоти";
@@ -155,19 +151,11 @@ function bookAppointment() {
     phone: phone
   };
   
-  console.log("Booking data:", data); // Дебаг-лог
-  
   fetch("https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
     body: JSON.stringify(data)
   })
-  .then(response => {
-    if (!response.ok) throw new Error("HTTP error: " + response.status);
-    return response.text();
-  })
+  .then(response => response.text())
   .then(result => {
     if (result !== "Success") throw new Error(result);
     document.getElementById("confirmation").textContent =
@@ -246,28 +234,17 @@ function saveChanges(row, originalData) {
     return;
   }
   
-  console.log("Original Data:", originalData); // Дебаг-лог
-  console.log("Updated Data:", updatedData); // Дебаг-лог
-  
   const data = {
     action: "update",
     original: originalData.slice(1),
     updated: updatedData.slice(1)
   };
   
-  console.log("Data sent to server:", JSON.stringify(data)); // Дебаг-лог
-
   fetch("https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
     body: JSON.stringify(data)
   })
-  .then(response => {
-    if (!response.ok) throw new Error("HTTP error: " + response.status);
-    return response.text();
-  })
+  .then(response => response.text())
   .then(result => {
     if (result !== "Success") throw new Error(result);
     alert("Запис успішно оновлено!");
@@ -281,12 +258,9 @@ function saveChanges(row, originalData) {
 
 function showAppointments() {
   fetch("https://script.google.com/macros/s/AKfycbx_Sjqds2oIId57hsSTh2tgDTY8NuW6MxoBEYc5g3VhRC9dlumHhch0q1INORNVcoy3/exec")
-    .then(response => {
-      if (!response.ok) throw new Error("HTTP error: " + response.status);
-      return response.json();
-    })
+    .then(response => response.json())
     .then(data => {
-      console.log("Appointments data:", data); // Дебаг-лог
+      console.log("Отримані дані з сервера:", data); // Дебаг-лог
       const container = document.getElementById("appointments-list");
       container.innerHTML = "";
       
