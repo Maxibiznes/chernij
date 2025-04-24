@@ -1,6 +1,6 @@
 body {
     font-family: 'Roboto', sans-serif;
-    background: linear-gradient(135deg, #d8bfd8, #800080);
+    background: linear-gradient(135deg, #ffe4e1, #ffb6c1);
     background-size: cover;
     background-attachment: scroll;
     margin: 0;
@@ -22,11 +22,11 @@ body::before {
 .container {
     max-width: 600px;
     margin: 0 auto;
-    background: linear-gradient(135deg, rgba(230, 210, 230, 0.9), rgba(200, 160, 200, 0.9));
+    background: linear-gradient(135deg, rgba(255, 228, 225, 0.9), rgba(255, 182, 193, 0.9));
     padding: 20px;
     border-radius: 15px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2), 0 4px 10px rgba(255, 255, 255, 0.5);
-    border: 1px solid rgba(255, 105, 180, 0.5);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15), 0 4px 12px rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(255, 182, 193, 0.5);
 }
 
 .header {
@@ -159,10 +159,10 @@ button:active {
     max-width: 600px;
     margin: 15px auto;
     padding: 15px;
-    background: linear-gradient(135deg, rgba(230, 210, 230, 0.9), rgba(200, 160, 200, 0.9));
+    background: linear-gradient(135deg, rgba(255, 228, 225, 0.9), rgba(255, 182, 193, 0.9));
     border-radius: 10px;
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2), 0 3px 8px rgba(255, 255, 255, 0.5);
-    border: 1px solid rgba(255, 105, 180, 0.5);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15), 0 3px 8px rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(255, 182, 193, 0.5);
 }
 
 .admin-panel ul {
@@ -182,8 +182,8 @@ button:active {
 
     .container {
         padding: 15px;
-        background: linear-gradient(135deg, rgba(230, 210, 230, 0.7), rgba(200, 160, 200, 0.7));
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(255, 255, 255, 0.5);
+        background: linear-gradient(135deg, rgba(255, 228, 225, 0.7), rgba(255, 182, 193, 0.7));
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15), 0 2px 6px rgba(255, 255, 255, 0.6);
     }
 
     .appointments-table th,
@@ -221,7 +221,7 @@ button:active {
 
     .admin-login, .admin-panel {
         padding: 10px;
-        background: linear-gradient(135deg, rgba(230, 210, 230, 0.7), rgba(200, 160, 200, 0.7));
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(255, 255, 255, 0.5);
+        background: linear-gradient(135deg, rgba(255, 228, 225, 0.7), rgba(255, 182, 193, 0.7));
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15), 0 2px 6px rgba(255, 255, 255, 0.6);
     }
 }
