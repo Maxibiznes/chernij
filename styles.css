@@ -2,8 +2,9 @@ body {
     font-family: 'Roboto', sans-serif;
     background: linear-gradient(135deg, #d8bfd8, #800080);
     background-size: cover;
+    background-attachment: scroll;
     margin: 0;
-    padding: 20px;
+    padding: 15px;
     position: relative;
 }
 
@@ -23,7 +24,7 @@ body::before {
     margin: 0 auto;
     background: rgba(255, 255, 255, 0.8);
     backdrop-filter: blur(10px);
-    padding: 30px;
+    padding: 20px;
     border-radius: 15px;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2), 0 4px 10px rgba(255, 255, 255, 0.5);
     border: 1px solid rgba(255, 105, 180, 0.5);
@@ -31,7 +32,7 @@ body::before {
 
 .header {
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: 25px;
 }
 
 #appointments-list {
@@ -42,28 +43,28 @@ body::before {
 .appointments-table {
     width: 100%;
     border-collapse: collapse;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
 }
 
 .appointments-table th,
 .appointments-table td {
     border: 1px solid #ff69b4;
-    padding: 8px;
+    padding: 6px;
     text-align: left;
     white-space: normal;
     word-wrap: break-word;
-    min-width: 80px;
+    min-width: 70px;
 }
 
 .appointments-table th {
     background-color: rgba(242, 242, 242, 0.9);
     font-weight: bold;
-    color: #c71585;
+    color: #4b0082;
 }
 
 .profile-pic {
-    width: 150px;
-    height: 150px;
+    width: 120px;
+    height: 120px;
     border-radius: 50%;
     border: 3px solid #ff69b4;
     object-fit: cover;
@@ -72,34 +73,35 @@ body::before {
 
 h1 {
     font-family: 'Playfair Display', serif;
-    color: #c71585;
-    font-size: 32px;
-    margin: 10px 0;
+    color: #4b0082;
+    font-size: 28px;
+    margin: 8px 0;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .slogan {
-    color: #333;
+    color: #4b0082;
     font-style: italic;
-    font-size: 16px;
+    font-size: 14px;
     text-shadow: 0 1px 1px rgba(255, 255, 255, 0.5);
 }
 
 .form-section {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 15px;
 }
 
 label {
     font-weight: bold;
-    color: #c71585;
+    color: #4b0082;
     text-shadow: 0 1px 1px rgba(255, 255, 255, 0.5);
+    font-size: 14px;
 }
 
 select, input, button {
-    padding: 12px;
-    font-size: 16px;
+    padding: 10px;
+    font-size: 14px;
     border: 2px solid #ff69b4;
     border-radius: 8px;
     background: rgba(255, 255, 255, 0.9);
@@ -137,20 +139,21 @@ button:active {
 }
 
 #confirmation {
-    margin-top: 20px;
+    margin-top: 15px;
     color: #1b5e20;
     font-weight: bold;
     text-shadow: 0 1px 1px rgba(255, 255, 255, 0.5);
+    font-size: 14px;
 }
 
 .admin-login, .admin-panel {
     max-width: 600px;
-    margin: 20px auto;
-    padding: 20px;
+    margin: 15px auto;
+    padding: 15px;
     background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(8px);
     border-radius: 10px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2), 0 4px 10px rgba(255, 255, 255, 0.5);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2), 0 3px 8px rgba(255, 255, 255, 0.5);
     border: 1px solid rgba(255, 105, 180, 0.5);
 }
 
@@ -160,32 +163,53 @@ button:active {
 }
 
 .admin-panel li {
-    padding: 10px;
+    padding: 8px;
     border-bottom: 1px solid #ff69b4;
 }
 
 @media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
     .container {
         padding: 15px;
+        backdrop-filter: blur(6px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(255, 255, 255, 0.5);
     }
-    
+
     .appointments-table th,
     .appointments-table td {
-        padding: 6px;
-        font-size: 14px;
+        padding: 5px;
+        font-size: 12px;
         min-width: 60px;
     }
-    
+
     .profile-pic {
-        width: 120px;
-        height: 120px;
+        width: 100px;
+        height: 100px;
     }
-    
+
     h1 {
-        font-size: 28px;
+        font-size: 24px;
     }
-    
+
     .slogan {
-        font-size: 14px;
+        font-size: 12px;
+    }
+
+    label {
+        font-size: 12px;
+    }
+
+    select, input, button {
+        padding: 8px;
+        font-size: 12px;
+    }
+
+    .admin-login, .admin-panel {
+        padding: 10px;
+        backdrop-filter: blur(6px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(255, 255, 255, 0.5);
     }
 }
