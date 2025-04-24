@@ -1,53 +1,99 @@
-<!DOCTYPE html>
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
 <html lang="uk">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Запис до Оксани Черній</title>
-  <link rel="stylesheet" href="styles.css">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display&family=Roboto:wght@300&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Оксана Черній - Запис на манікюр</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <img src="https://via.placeholder.com/150" alt="Оксана Черній" class="profile-pic">
-      <h1>Оксана Черній</h1>
-      <p class="slogan">Ваші нігті — моя турбота! Досконалий манікюр із любов’ю та стилем.</p>
+    <div class="container">
+        <div class="header">
+            <img src="golovnephoto.png" alt="Оксана Черній" class="profile-pic">
+            <h1>Оксана Черній</h1>
+            <p class="slogan">Ваш ідеальний манікюр чекає на вас!</p>
+        </div>
+
+        <div class="form-section">
+            <label for="service">Оберіть послугу:</label>
+            <select id="service">
+                <option value="" disabled selected>Класичний манікюр...</option>
+                <option value="classic">Класичний манікюр - 200 грн</option>
+                <option value="gel">Гель-лак - 350 грн</option>
+                <option value="design">Дизайн нігтів - 400 грн</option>
+            </select>
+
+            <label for="date">Оберіть дату:</label>
+            <input type="date" id="date">
+
+            <label for="time">Оберіть час:</label>
+            <select id="time">
+                <option value="" disabled selected>Спочатку оберіть дату</option>
+            </select>
+
+            <label for="name">Ваше ім'я:</label>
+            <input type="text" id="name" placeholder="Введіть ваше ім'я">
+
+            <label for="phone">Ваш номер телефону:</label>
+            <input type="tel" id="phone" placeholder="Введіть ваш номер">
+
+            <button onclick="bookAppointment()">Записатися</button>
+            <p id="confirmation"></p>
+        </div>
+
+        <div id="appointments-list"></div>
+
+        <div class="admin-login">
+            <h2>Адмін-панель</h2>
+            <input type="password" id="admin-password" placeholder="Введіть пароль">
+            <button onclick="loginAdmin()">Увійти</button>
+        </div>
+
+        <div class="admin-panel" id="admin-panel" style="display: none;">
+            <h2>Записи</h2>
+            <ul id="admin-appointments"></ul>
+        </div>
     </div>
-    <div class="form-section">
-      <label for="service">Оберіть послугу:</label>
-      <select id="service">
-        <option value="classic">Класичний манікюр - 200 грн</option>
-        <option value="gel">Гель-лак - 350 грн</option>
-        <option value="design">Манікюр із дизайном - 400 грн</option>
-      </select>
-      <label for="date">Оберіть дату:</label>
-      <input type="date" id="date" min="2025-02-25" onchange="updateTimeSlots()">
-      <label for="time">Оберіть час:</label>
-      <select id="time">
-        <option value="">Спочатку оберіть дату</option>
-      </select>
-      <label for="name">Ваше ім’я:</label>
-      <input type="text" id="name" placeholder="Введіть ім’я">
-      <label for="phone">Ваш телефон:</label>
-      <input type="tel" id="phone" placeholder="Введіть номер телефону">
-      <button onclick="bookAppointment()">Записатися</button>
-    </div>
-    <p id="confirmation" style="display: none;"></p>
-    <div class="admin-login" style="display: none;">
-      <h2>Вхід для адміна</h2>
-      <input type="password" id="admin-password" placeholder="Введіть пароль">
-      <button onclick="loginAdmin()">Увійти</button>
-      <p id="admin-error" style="color: red; display: none;">Невірний пароль!</p>
-    </div>
-    <div class="admin-panel" style="display: none;">
-      <h2>Панель адміністратора</h2>
-      <button onclick="logoutAdmin()">Вийти</button>
-      <h3>Записи</h3>
-      <div id="appointments-list"></div>
-    </div>
-  </div>
-  <script type="text/javascript" src="script.js"></script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9312bc313d244513',t:'MTc0NDc5NjU3Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
+    <script src="script.js"></script>
 </body>
 </html>
