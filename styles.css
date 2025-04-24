@@ -108,7 +108,8 @@ select, input, button {
     transition: border-color 0.3s, box-shadow 0.3s;
 }
 
-select option {
+#service option:first-child,
+#time option:first-child {
     color: #666;
 }
 
