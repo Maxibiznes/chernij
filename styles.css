@@ -110,11 +110,15 @@ select, input, button {
 
 #service option:first-child,
 #time option:first-child {
-    color: #666;
+    color: #666 !important;
+}
+
+select option:not(:first-child) {
+    color: #000;
 }
 
 select option:disabled {
-    color: #666;
+    color: #666 !important;
 }
 
 select:focus, input:focus {
