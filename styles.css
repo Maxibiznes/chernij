@@ -22,7 +22,7 @@ body::before {
 .container {
     max-width: 600px;
     margin: 0 auto;
-    background: linear-gradient(135deg, rgba(216, 191, 216, 0.9), rgba(128, 0, 128, 0.9));
+    background: linear-gradient(135deg, rgba(230, 210, 230, 0.9), rgba(200, 160, 200, 0.9));
     padding: 20px;
     border-radius: 15px;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2), 0 4px 10px rgba(255, 255, 255, 0.5);
@@ -48,11 +48,12 @@ body::before {
 .appointments-table th,
 .appointments-table td {
     border: 1px solid #ff69b4;
-    padding: 6px;
+    padding: 8px;
     text-align: left;
     white-space: normal;
     word-wrap: break-word;
-    min-width: 70px;
+    min-width: 80px;
+    font-size: 16px;
 }
 
 .appointments-table th {
@@ -73,7 +74,7 @@ body::before {
 h1 {
     font-family: 'Playfair Display', serif;
     color: #2e1a47;
-    font-size: 28px;
+    font-size: 36px;
     margin: 8px 0;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
 }
@@ -81,7 +82,7 @@ h1 {
 .slogan {
     color: #2e1a47;
     font-style: italic;
-    font-size: 14px;
+    font-size: 18px;
     text-shadow: 0 1px 1px rgba(255, 255, 255, 0.5);
 }
 
@@ -95,25 +96,29 @@ label {
     font-weight: bold;
     color: #2e1a47;
     text-shadow: 0 1px 1px rgba(255, 255, 255, 0.5);
-    font-size: 14px;
+    font-size: 18px;
 }
 
 select, input, button {
     padding: 10px;
-    font-size: 14px;
+    font-size: 18px;
     border: 2px solid #ff69b4;
     border-radius: 8px;
     background: rgba(255, 255, 255, 0.9);
     transition: border-color 0.3s, box-shadow 0.3s;
 }
 
-select:focus, input:focus {
-    border-color: #c71585;
-    box-shadow: 0 0 8px rgba(199, 21, 133, 0.5);
+select option {
+    color: #666;
 }
 
 select option:disabled {
-    color: #999;
+    color: #666;
+}
+
+select:focus, input:focus {
+    border-color: #c71585;
+    box-shadow: 0 0 8px rgba(199, 21, 133, 0.5);
 }
 
 button {
@@ -142,14 +147,14 @@ button:active {
     color: #1b5e20;
     font-weight: bold;
     text-shadow: 0 1px 1px rgba(255, 255, 255, 0.5);
-    font-size: 14px;
+    font-size: 18px;
 }
 
 .admin-login, .admin-panel {
     max-width: 600px;
     margin: 15px auto;
     padding: 15px;
-    background: linear-gradient(135deg, rgba(216, 191, 216, 0.9), rgba(128, 0, 128, 0.9));
+    background: linear-gradient(135deg, rgba(230, 210, 230, 0.9), rgba(200, 160, 200, 0.9));
     border-radius: 10px;
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2), 0 3px 8px rgba(255, 255, 255, 0.5);
     border: 1px solid rgba(255, 105, 180, 0.5);
@@ -172,14 +177,14 @@ button:active {
 
     .container {
         padding: 15px;
-        background: linear-gradient(135deg, rgba(216, 191, 216, 0.7), rgba(128, 0, 128, 0.7));
+        background: linear-gradient(135deg, rgba(230, 210, 230, 0.7), rgba(200, 160, 200, 0.7));
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(255, 255, 255, 0.5);
     }
 
     .appointments-table th,
     .appointments-table td {
         padding: 5px;
-        font-size: 12px;
+        font-size: 14px;
         min-width: 60px;
     }
 
@@ -189,25 +194,29 @@ button:active {
     }
 
     h1 {
-        font-size: 24px;
+        font-size: 30px;
     }
 
     .slogan {
-        font-size: 12px;
+        font-size: 16px;
     }
 
     label {
-        font-size: 12px;
+        font-size: 16px;
     }
 
     select, input, button {
         padding: 8px;
-        font-size: 12px;
+        font-size: 16px;
+    }
+
+    #confirmation {
+        font-size: 16px;
     }
 
     .admin-login, .admin-panel {
         padding: 10px;
-        background: linear-gradient(135deg, rgba(216, 191, 216, 0.7), rgba(128, 0, 128, 0.7));
+        background: linear-gradient(135deg, rgba(230, 210, 230, 0.7), rgba(200, 160, 200, 0.7));
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(255, 255, 255, 0.5);
     }
 }
