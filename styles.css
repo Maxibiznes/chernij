@@ -1,4 +1,4 @@
-:root {
+﻿:root {
   --primary-color: #e83e8c;
   --primary-light: #f8d7e5;
   --primary-dark: #c71f76;
@@ -37,7 +37,7 @@ body {
 }
 
 .card {
-  background: white;
+  background: linear-gradient(135deg, #fef7fa, var(--primary-light));
   border-radius: var(--border-radius);
   box-shadow: var(--box-shadow);
   padding: 30px;
