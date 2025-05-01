@@ -11,6 +11,7 @@
   --transition: all 0.3s ease;
 }
 
+/* Reset and base styles */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -22,8 +23,6 @@ body {
   background-color: #f9f9f9;
   color: var(--dark-color);
   line-height: 1.6;
-  margin: 0;
-  padding: 0;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -32,10 +31,10 @@ body {
 
 body::before {
   content: "";
-  position: fixed; /* Змінено з absolute на fixed */
+  position: fixed; /* Fixed position for consistent header background */
   top: 0;
   left: 0;
-  width: 100vw; /* Ширина відносно viewport */
+  width: 100%;
   height: 160px;
   background-image: url('golovnephoto.png');
   background-size: cover;
@@ -45,13 +44,15 @@ body::before {
   mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 60%, transparent 100%);
 }
 
+/* Layout */
 .container {
   max-width: 800px;
   margin: 0 auto;
-  padding: 140px 20px 40px 20px;
+  padding: 140px 20px 40px;
   flex: 1;
 }
 
+/* Card elements */
 .card {
   background: linear-gradient(135deg, #fef7fa, var(--primary-light));
   border-radius: var(--border-radius);
@@ -66,6 +67,7 @@ body::before {
   transform: translateY(-5px);
 }
 
+/* Typography */
 .header {
   text-align: center;
   margin-bottom: 40px;
@@ -111,6 +113,7 @@ h1 {
   margin-bottom: 20px;
 }
 
+/* Forms */
 .form-section {
   display: flex;
   flex-direction: column;
@@ -150,6 +153,7 @@ select option:disabled {
   color: #ccc;
 }
 
+/* Buttons */
 .btn-primary,
 .btn-secondary {
   display: inline-block;
@@ -185,6 +189,7 @@ select option:disabled {
   transform: translateY(-2px);
 }
 
+/* Notifications */
 .confirmation {
   margin-top: 20px;
   padding: 15px;
@@ -201,6 +206,7 @@ select option:disabled {
   margin-top: 10px;
 }
 
+/* Tables */
 .appointments-container {
   max-width: 100%;
   overflow-x: auto;
@@ -252,6 +258,7 @@ select option:disabled {
   background: #5a6268;
 }
 
+/* Footer */
 .footer {
   text-align: center;
   padding: 20px;
@@ -261,14 +268,14 @@ select option:disabled {
   margin-top: auto;
 }
 
-/* Адаптивність для мобільних пристроїв */
+/* Responsive styles */
 @media (max-width: 768px) {
   body::before {
     height: 120px;
   }
 
   .container {
-    padding: 100px 15px 20px 15px;
+    padding: 100px 15px 20px;
   }
 
   .card {
@@ -279,12 +286,12 @@ select option:disabled {
     font-size: 28px;
   }
 
-  .slogan {
-    font-size: 14px;
-  }
-
   .section-title {
     font-size: 22px;
+  }
+
+  .slogan {
+    font-size: 14px;
   }
 
   .appointments-table th,
@@ -300,19 +307,19 @@ select option:disabled {
   }
 
   .container {
-    padding: 80px 15px 20px 15px;
+    padding: 80px 15px 20px;
   }
 
   h1 {
     font-size: 24px;
   }
 
-  .slogan {
-    font-size: 12px;
-  }
-
   .section-title {
     font-size: 20px;
+  }
+
+  .slogan {
+    font-size: 12px;
   }
 
   select,
