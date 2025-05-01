@@ -31,14 +31,16 @@ body {
 
 body::before {
   content: "";
-  position: fixed; /* Fixed position for consistent header background */
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 160px;
-  background-image: url('golovnephoto.png');
-  background-size: cover;
+  background-image: url('golovnephoto.png'); /* Зображення для ПК */
+  background-size: 100% auto; /* Змінюємо cover на 100% auto */
   background-position: center;
+  background-repeat: no-repeat;
+  background-color: #f8d7e5; /* Додаємо фон для заповнення простору */
   z-index: -1;
   -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 60%, transparent 100%);
   mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 60%, transparent 100%);
@@ -272,6 +274,11 @@ select option:disabled {
 @media (max-width: 768px) {
   body::before {
     height: 120px;
+    background-image: url('golovnephoto-mobile.png'); /* Зображення для мобільних */
+    background-size: 100% auto;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: #f8d7e5;
   }
 
   .container {
@@ -304,6 +311,11 @@ select option:disabled {
 @media (max-width: 480px) {
   body::before {
     height: 100px;
+    background-image: url('golovnephoto-mobile.png'); /* Зображення для мобільних */
+    background-size: 100% auto;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: #f8d7e5;
   }
 
   .container {
