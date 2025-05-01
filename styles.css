@@ -31,14 +31,15 @@ body {
 
 body::before {
   content: "";
-  position: fixed; /* Fixed position for consistent header background */
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  height: 160px;
+  height: 200px; /* Збільшуємо висоту для ПК */
   background-image: url('golovnephoto.png');
-  background-size: cover;
+  background-size: 800px auto; /* Фіксована ширина для кращого масштабування */
   background-position: center;
+  background-repeat: no-repeat;
   z-index: -1;
   -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 60%, transparent 100%);
   mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 60%, transparent 100%);
@@ -48,7 +49,7 @@ body::before {
 .container {
   max-width: 800px;
   margin: 0 auto;
-  padding: 140px 20px 40px;
+  padding: 180px 20px 40px; /* Збільшуємо верхній відступ через більшу висоту зображення */
   flex: 1;
 }
 
@@ -269,9 +270,16 @@ select option:disabled {
 }
 
 /* Responsive styles */
+@media (min-width: 769px) {
+  body::before {
+    background-size: 800px auto; /* Зберігаємо фіксовану ширину для ПК */
+  }
+}
+
 @media (max-width: 768px) {
   body::before {
     height: 120px;
+    background-size: cover; /* Для мобільних повертаємо cover */
   }
 
   .container {
@@ -304,6 +312,7 @@ select option:disabled {
 @media (max-width: 480px) {
   body::before {
     height: 100px;
+    background-size: cover;
   }
 
   .container {
