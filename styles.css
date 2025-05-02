@@ -1,4 +1,4 @@
-﻿:root {
+:root {
   --primary-color: #e83e8c;
   --primary-light: #f8d7e5;
   --primary-dark: #c71f76;
@@ -20,11 +20,11 @@
 
 body {
   font-family: "Montserrat", sans-serif;
-  background-image: url('background-image.jpg'); /* Нове фонове зображення для ПК */
-  background-size: cover; /* Масштабуємо зображення, щоб покрити всю сторінку */
+  background-image: url('background-image.jpg'); /* Фонове зображення для всіх пристроїв */
+  background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  background-attachment: fixed; /* Фон фіксується при прокручуванні */
+  background-attachment: fixed; /* Фіксований фон для ПК */
   color: var(--dark-color);
   line-height: 1.6;
   min-height: 100vh;
@@ -277,8 +277,8 @@ select option:disabled {
 /* Responsive styles */
 @media (max-width: 768px) {
   body {
-    background-image: none; /* Прибираємо фонове зображення для мобільних */
-    background-color: #f9f9f9; /* Повертаємо світлий фон для мобільних */
+    background-size: cover; /* Залишаємо масштабування для мобільних */
+    background-attachment: scroll; /* Прибираємо фіксацію для мобільних */
   }
 
   body::before {
