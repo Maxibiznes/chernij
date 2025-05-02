@@ -96,7 +96,7 @@ body::before {
 }
 
 h1 {
-  font-family: 'Jakob_DP_Normal', "Playfair Display", serif; /* Новий шрифт для "Оксана Черній" */
+  font-family: 'Jakob_DP_Normal', "Playfair Display", serif;
   color: var(--primary-color);
   font-size: 36px;
   margin-bottom: 10px;
@@ -104,7 +104,7 @@ h1 {
 }
 
 .section-title {
-  font-family: "Playfair Display", serif;
+  font-family: 'Jakob_DP_Normal', "Playfair Display", serif; /* Новий шрифт для "Запис на манікюр" */
   color: var(--primary-color);
   font-size: 24px;
   margin-bottom: 20px;
