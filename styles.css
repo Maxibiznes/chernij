@@ -20,7 +20,11 @@
 
 body {
   font-family: "Montserrat", sans-serif;
-  background-color: #f9f9f9;
+  background-image: url('background-image.jpg'); /* Нове фонове зображення для ПК */
+  background-size: cover; /* Масштабуємо зображення, щоб покрити всю сторінку */
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed; /* Фон фіксується при прокручуванні */
   color: var(--dark-color);
   line-height: 1.6;
   min-height: 100vh;
@@ -37,10 +41,10 @@ body::before {
   width: 100%;
   height: 160px;
   background-image: url('golovnephoto.png'); /* Зображення для ПК */
-  background-size: 100% auto; /* Змінюємо cover на 100% auto */
+  background-size: 100% auto;
   background-position: center;
   background-repeat: no-repeat;
-  background-color: #f8d7e5; /* Додаємо фон для заповнення простору */
+  background-color: #f8d7e5;
   z-index: -1;
   -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 60%, transparent 100%);
   mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 60%, transparent 100%);
@@ -272,9 +276,14 @@ select option:disabled {
 
 /* Responsive styles */
 @media (max-width: 768px) {
+  body {
+    background-image: none; /* Прибираємо фонове зображення для мобільних */
+    background-color: #f9f9f9; /* Повертаємо світлий фон для мобільних */
+  }
+
   body::before {
     height: 120px;
-    background-image: url('golovnephoto-mobile.png'); /* Зображення для мобільних */
+    background-image: url('golovnephoto-mobile.png');
     background-size: 100% auto;
     background-position: center;
     background-repeat: no-repeat;
@@ -311,7 +320,7 @@ select option:disabled {
 @media (max-width: 480px) {
   body::before {
     height: 100px;
-    background-image: url('golovnephoto-mobile.png'); /* Зображення для мобільних */
+    background-image: url('golovnephoto-mobile.png');
     background-size: 100% auto;
     background-position: center;
     background-repeat: no-repeat;
