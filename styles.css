@@ -1,4 +1,4 @@
-:root {
+﻿:root {
   --primary-color: #e83e8c;
   --primary-light: #f8d7e5;
   --primary-dark: #c71f76;
@@ -11,6 +11,14 @@
   --transition: all 0.3s ease;
 }
 
+/* Підключення шрифта Segoe_Script */
+@font-face {
+  font-family: 'Segoe_Script';
+  src: url('fonts/Segoe_Script.ttf') format('truetype'); /* Спрощуємо шлях */
+  font-weight: normal;
+  font-style: normal;
+}
+
 /* Reset and base styles */
 * {
   box-sizing: border-box;
@@ -20,11 +28,11 @@
 
 body {
   font-family: "Montserrat", sans-serif;
-  background-image: url('background-image.jpg'); /* Фонове зображення для всіх пристроїв */
+  background-image: url('background-image.jpg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  background-attachment: fixed; /* Фіксований фон для ПК */
+  background-attachment: fixed;
   color: var(--dark-color);
   line-height: 1.6;
   min-height: 100vh;
@@ -40,7 +48,7 @@ body::before {
   left: 0;
   width: 100%;
   height: 160px;
-  background-image: url('golovnephoto.png'); /* Зображення для ПК */
+  background-image: url('golovnephoto.png');
   background-size: 100% auto;
   background-position: center;
   background-repeat: no-repeat;
@@ -112,7 +120,8 @@ h1 {
   color: var(--secondary-color);
 }
 
-.slogan {
+p.slogan {
+  font-family: 'Segoe_Script', "Montserrat", sans-serif; /* Підвищена специфічність */
   color: var(--secondary-color);
   font-style: italic;
   font-size: 16px;
@@ -277,8 +286,8 @@ select option:disabled {
 /* Responsive styles */
 @media (max-width: 768px) {
   body {
-    background-size: cover; /* Залишаємо масштабування для мобільних */
-    background-attachment: scroll; /* Прибираємо фіксацію для мобільних */
+    background-size: cover;
+    background-attachment: scroll;
   }
 
   body::before {
@@ -306,7 +315,7 @@ select option:disabled {
     font-size: 22px;
   }
 
-  .slogan {
+  p.slogan {
     font-size: 14px;
   }
 
@@ -339,7 +348,7 @@ select option:disabled {
     font-size: 20px;
   }
 
-  .slogan {
+  p.slogan {
     font-size: 12px;
   }
 
