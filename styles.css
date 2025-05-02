@@ -14,7 +14,15 @@
 /* Підключення шрифта Segoe_Script */
 @font-face {
   font-family: 'Segoe_Script';
-  src: url('fonts/Segoe_Script.ttf') format('truetype'); /* Спрощуємо шлях */
+  src: url('fonts/Segoe_Script.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* Підключення шрифта Jakob_DP_Normal */
+@font-face {
+  font-family: 'Jakob_DP_Normal';
+  src: url('fonts/Jakob_DP_Normal.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
 }
@@ -88,7 +96,7 @@ body::before {
 }
 
 h1 {
-  font-family: "Playfair Display", serif;
+  font-family: 'Jakob_DP_Normal', "Playfair Display", serif; /* Новий шрифт для "Оксана Черній" */
   color: var(--primary-color);
   font-size: 36px;
   margin-bottom: 10px;
@@ -121,7 +129,7 @@ h1 {
 }
 
 p.slogan {
-  font-family: 'Segoe_Script', "Montserrat", sans-serif; /* Підвищена специфічність */
+  font-family: 'Segoe_Script', "Montserrat", sans-serif;
   color: var(--secondary-color);
   font-style: italic;
   font-size: 16px;
