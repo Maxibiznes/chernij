@@ -1,4 +1,4 @@
-﻿:root {
+:root {
   --primary-color: #e83e8c;
   --primary-light: #f8d7e5;
   --primary-dark: #c71f76;
@@ -104,7 +104,7 @@ h1 {
 }
 
 .section-title {
-  font-family: 'Jakob_DP_Normal', "Playfair Display", serif; /* Новий шрифт для "Запис на манікюр" */
+  font-family: 'Jakob_DP_Normal', "Playfair Display", serif;
   color: var(--primary-color);
   font-size: 24px;
   margin-bottom: 20px;
@@ -179,6 +179,7 @@ select option:disabled {
 /* Buttons */
 .btn-primary,
 .btn-secondary {
+  font-family: 'Jakob_DP_Normal', "Montserrat", sans-serif; /* Новий шрифт для кнопок */
   display: inline-block;
   padding: 12px 24px;
   font-size: 16px;
