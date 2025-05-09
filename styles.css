@@ -9,25 +9,29 @@
   --border-radius: 12px;
   --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
   --transition: all 0.3s ease;
+  --font-heading: 'Jakob_DP_Normal', "Playfair Display", serif;
+  --font-body: "Montserrat", sans-serif;
+  --font-script: 'Segoe_Script', "Montserrat", sans-serif;
 }
 
-/* Підключення шрифта Segoe_Script */
+/* Підключення шрифтів */
 @font-face {
   font-family: 'Segoe_Script';
   src: url('fonts/Segoe_Script.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
+  font-display: swap; /* Покращує швидкість завантаження сторінки */
 }
 
-/* Підключення шрифта Jakob_DP_Normal */
 @font-face {
   font-family: 'Jakob_DP_Normal';
   src: url('fonts/Jakob_DP_Normal.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
+  font-display: swap;
 }
 
-/* Reset and base styles */
+/* Reset та базові стилі */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -35,7 +39,7 @@
 }
 
 body {
-  font-family: "Montserrat", sans-serif;
+  font-family: var(--font-body);
   background-image: url('background-image.jpg');
   background-size: cover;
   background-position: center;
@@ -56,11 +60,8 @@ body::before {
   left: 0;
   width: 100%;
   height: 160px;
-  background-image: url('golovnephoto.png');
+  background: var(--primary-light) url('golovnephoto.png') no-repeat center;
   background-size: 100% auto;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-color: #f8d7e5;
   z-index: -1;
   -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 60%, transparent 100%);
   mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 60%, transparent 100%);
@@ -96,7 +97,7 @@ body::before {
 }
 
 h1 {
-  font-family: 'Jakob_DP_Normal', "Playfair Display", serif;
+  font-family: var(--font-heading);
   color: var(--primary-color);
   font-size: 36px;
   margin-bottom: 10px;
@@ -104,7 +105,7 @@ h1 {
 }
 
 .section-title {
-  font-family: 'Jakob_DP_Normal', "Playfair Display", serif;
+  font-family: var(--font-heading);
   color: var(--primary-color);
   font-size: 24px;
   margin-bottom: 20px;
@@ -129,7 +130,7 @@ h1 {
 }
 
 p.slogan {
-  font-family: 'Segoe_Script', "Montserrat", sans-serif;
+  font-family: var(--font-script);
   color: var(--secondary-color);
   font-style: italic;
   font-size: 16px;
@@ -154,6 +155,7 @@ label {
   color: var(--dark-color);
 }
 
+/* Спільні стилі для input та select */
 select,
 input {
   width: 100%;
@@ -179,7 +181,7 @@ select option:disabled {
 /* Buttons */
 .btn-primary,
 .btn-secondary {
-  font-family: 'Jakob_DP_Normal', "Montserrat", sans-serif; /* Новий шрифт для кнопок */
+  font-family: var(--font-heading);
   display: inline-block;
   padding: 12px 24px;
   font-size: 16px;
@@ -191,11 +193,11 @@ select option:disabled {
   transition: var(--transition);
   width: 100%;
   margin-top: 10px;
+  color: white;
 }
 
 .btn-primary {
   background: var(--primary-color);
-  color: white;
 }
 
 .btn-primary:hover {
@@ -205,7 +207,6 @@ select option:disabled {
 
 .btn-secondary {
   background: var(--secondary-color);
-  color: white;
 }
 
 .btn-secondary:hover {
@@ -294,18 +295,10 @@ select option:disabled {
 
 /* Responsive styles */
 @media (max-width: 768px) {
-  body {
-    background-size: cover;
-    background-attachment: scroll;
-  }
-
   body::before {
     height: 120px;
-    background-image: url('golovnephoto-mobile.png');
+    background: var(--primary-light) url('golovnephoto-mobile.png') no-repeat center;
     background-size: 100% auto;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-color: #f8d7e5;
   }
 
   .container {
@@ -338,11 +331,6 @@ select option:disabled {
 @media (max-width: 480px) {
   body::before {
     height: 100px;
-    background-image: url('golovnephoto-mobile.png');
-    background-size: 100% auto;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-color: #f8d7e5;
   }
 
   .container {
