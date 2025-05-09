@@ -94,6 +94,9 @@ body::before {
 .header {
   text-align: center;
   margin-bottom: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 h1 {
@@ -102,6 +105,10 @@ h1 {
   font-size: 36px;
   margin-bottom: 10px;
   font-weight: 700;
+  background-color: rgba(255, 255, 255, 0.7);
+  padding: 8px 15px;
+  display: inline-block;
+  border-radius: var(--border-radius);
 }
 
 .section-title {
@@ -133,8 +140,12 @@ p.slogan {
   font-family: var(--font-script);
   color: var(--secondary-color);
   font-style: italic;
-  font-size: 16px;
+  font-size: 18px;
   margin-bottom: 20px;
+  background-color: rgba(255, 255, 255, 0.7);
+  padding: 8px 15px;
+  display: inline-block;
+  border-radius: var(--border-radius);
 }
 
 /* Forms */
@@ -184,7 +195,7 @@ select option:disabled {
   font-family: var(--font-heading);
   display: inline-block;
   padding: 12px 24px;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 600;
   text-align: center;
   border: none;
@@ -194,6 +205,7 @@ select option:disabled {
   width: 100%;
   margin-top: 10px;
   color: white;
+  letter-spacing: 0.5px;
 }
 
 .btn-primary {
@@ -311,6 +323,7 @@ select option:disabled {
 
   h1 {
     font-size: 28px;
+    padding: 6px 12px;
   }
 
   .section-title {
@@ -318,13 +331,19 @@ select option:disabled {
   }
 
   p.slogan {
-    font-size: 14px;
+    font-size: 16px;
+    padding: 6px 12px;
   }
 
   .appointments-table th,
   .appointments-table td {
     padding: 8px;
     font-size: 14px;
+  }
+  
+  .btn-primary,
+  .btn-secondary {
+    font-size: 16px;
   }
 }
 
@@ -339,6 +358,7 @@ select option:disabled {
 
   h1 {
     font-size: 24px;
+    padding: 5px 10px;
   }
 
   .section-title {
@@ -346,14 +366,20 @@ select option:disabled {
   }
 
   p.slogan {
-    font-size: 12px;
+    font-size: 14px;
+    padding: 5px 10px;
+    margin-bottom: 15px;
   }
 
   select,
-  input,
+  input {
+    padding: 10px;
+    font-size: 14px;
+  }
+  
   .btn-primary,
   .btn-secondary {
     padding: 10px;
-    font-size: 14px;
+    font-size: 16px;
   }
 }
